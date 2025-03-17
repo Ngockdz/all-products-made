@@ -1,0 +1,147 @@
+package CRUD;
+
+import org.junit.Test;
+import org.openqa.selenium.*;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.apache.commons.io.FileUtils;
+
+import java.io.File;
+import java.io.IOException;
+import java.time.Duration;
+
+import static org.junit.Assert.*;
+
+public class TestEditProduct {
+
+    final String PRODUCT_NAME = "New Product Test " + System.currentTimeMillis();
+    final String EDITED_NAME = PRODUCT_NAME + " Edited";
+    final String PRODUCT_PRICE = "10000";
+    final String EDITED_PRICE = "20000";
+    final String PRODUCT_DESCRIPTION = "This is a test product description";
+    final String EDITED_DESCRIPTION = "Edited description";
+    final String IMAGE_PATH = "D:\\java5\\AsmGD1\\AsmGD1\\asm\\src\\main\\resources\\static\\img\\NikeAirForce1.jpg";
+
+    @Test
+    public void testEditProduct() {
+        System.setProperty("webdriver.chrome.driver", "C:\\Users\\ASUS\\Downloads\\chromedriver-win64\\chromedriver.exe");
+        WebDriver driver = new ChromeDriver();
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(25));
+
+        try {
+            // [1] ĐĂNG NHẬP
+            driver.get("http://localhost:8080/login");
+            
+            WebElement emailField = wait.until(ExpectedConditions.visibilityOfElementLocated(
+                By.cssSelector("input[name='email']")
+            ));
+            emailField.sendKeys("admin.nguyen@example.com");
+            
+            WebElement passField = wait.until(ExpectedConditions.visibilityOfElementLocated(
+                By.cssSelector("input[name='password']")
+            ));
+            passField.sendKeys("adminpass");
+            
+            WebElement loginButton = wait.until(ExpectedConditions.elementToBeClickable(
+                By.cssSelector("button[type='submit']")
+            ));
+            loginButton.click();
+
+            // [2] THÊM SẢN PHẨM ĐỂ CHỈNH SỬA
+            driver.get("http://localhost:8080/admin/add-product");
+
+            wait.until(ExpectedConditions.visibilityOfElementLocated(
+                By.xpath("//h2[contains(text(), 'Thêm sản phẩm')]")
+            ));
+
+            WebElement nameField = driver.findElement(By.name("nameproduct"));
+            scrollAndSendKeys(driver, nameField, PRODUCT_NAME);
+
+            WebElement priceField = driver.findElement(By.name("price"));
+            scrollAndSendKeys(driver, priceField, PRODUCT_PRICE);
+
+            WebElement descField = driver.findElement(By.name("description"));
+            scrollAndSendKeys(driver, descField, PRODUCT_DESCRIPTION);
+
+            WebElement fileInput = driver.findElement(By.name("photoFile"));
+            ((JavascriptExecutor) driver).executeScript(
+                "arguments[0].style.display = 'block'; arguments[0].style.visibility = 'visible';", 
+                fileInput
+            );
+            fileInput.sendKeys(IMAGE_PATH);
+
+            WebElement submitButton = driver.findElement(
+                By.xpath("//button[contains(text(), 'Lưu thay đổi')]")
+            );
+            submitButton.click();
+
+            wait.until(ExpectedConditions.urlToBe("http://localhost:8080/adminproducts"));
+            
+            WebElement newProduct = wait.until(ExpectedConditions.visibilityOfElementLocated(
+                By.xpath("//h5[contains(., '" + PRODUCT_NAME + "')]")
+            ));
+
+            // [3] TÌM LINK CHỈNH SỬA SẢN PHẨM
+            WebElement productCard = newProduct.findElement(By.xpath("./ancestor::div[contains(@class, 'card')]"));
+            WebElement editLink = productCard.findElement(By.xpath(".//a[contains(@href, '/admin/edit-product/')]"));
+            String editUrl = editLink.getAttribute("href");
+            
+            // [4] TRUY CẬP TRANG CHỈNH SỬA
+            driver.get(editUrl);
+
+            // [5] CẬP NHẬT THÔNG TIN MỚI
+            WebElement editNameField = wait.until(ExpectedConditions.visibilityOfElementLocated(By.name("nameproduct")));
+            scrollAndSendKeys(driver, editNameField, EDITED_NAME);
+
+            WebElement editPriceField = driver.findElement(By.name("price"));
+            scrollAndSendKeys(driver, editPriceField, EDITED_PRICE);
+
+            WebElement editDescField = driver.findElement(By.name("description"));
+            scrollAndSendKeys(driver, editDescField, EDITED_DESCRIPTION);
+
+            // [6] LƯU THAY ĐỔI
+            WebElement saveButton = driver.findElement(By.xpath("//button[contains(text(), 'Lưu thay đổi')]"));
+            saveButton.click();
+
+            // [7] KIỂM TRA KẾT QUẢ
+            wait.until(ExpectedConditions.urlToBe("http://localhost:8080/adminproducts"));
+            
+            WebElement editedProduct = wait.until(ExpectedConditions.visibilityOfElementLocated(
+                By.xpath("//h5[contains(., '" + EDITED_NAME + "')]")
+            ));
+            assertTrue("Không tìm thấy sản phẩm đã chỉnh sửa", editedProduct.isDisplayed());
+
+        } catch (Exception e) {
+            takeScreenshot(driver, "error");
+            fail("Test thất bại: " + e.getMessage());
+        } finally {
+            if (driver != null) {
+                driver.quit();
+            }
+        }
+    }
+
+    private void scrollAndSendKeys(WebDriver driver, WebElement element, String text) {
+        ((JavascriptExecutor) driver).executeScript(
+            "arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", 
+            element
+        );
+        element.clear();
+        element.sendKeys(text);
+        try {
+            Thread.sleep(300);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    private void takeScreenshot(WebDriver driver, String fileName) {
+        try {
+            File screenshot = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
+            FileUtils.copyFile(screenshot, new File(fileName + "_screenshot.png"));
+        } catch (IOException e) {
+            System.err.println("Lỗi khi chụp màn hình: " + e.getMessage());
+        }
+    }
+}

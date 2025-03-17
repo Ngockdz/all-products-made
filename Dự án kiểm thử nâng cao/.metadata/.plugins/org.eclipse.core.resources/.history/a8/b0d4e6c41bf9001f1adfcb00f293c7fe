@@ -1,0 +1,86 @@
+package CRUD;
+
+import org.junit.Test;
+import org.openqa.selenium.*;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+import java.io.IOException;
+import java.time.Duration;
+import static org.junit.Assert.*;
+
+public class TestaddProductById {
+
+    final String PRODUCT_NAME = "New Product Test " + System.currentTimeMillis();
+    final String PRODUCT_PRICE = "10000";
+    final String PRODUCT_DESCRIPTION = "This is a test product description";
+    final String IMAGE_PATH = "D:\\java5\\AsmGD1\\AsmGD1\\asm\\src\\main\\resources\\static\\img\\NikeAirForce1.jpg";
+
+    @Test
+    public void testAddProduct() {
+        System.setProperty("webdriver.chrome.driver", "C:\\Users\\ASUS\\Downloads\\chromedriver-win64\\chromedriver.exe");
+        WebDriver driver = new ChromeDriver();
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(25)); // Tăng timeout
+
+        try {
+            // [1] LOGIN PROCESS
+            driver.get("http://localhost:8080/login");
+            
+            // Đăng nhập với điều kiện chờ được tối ưu
+            WebElement emailField = wait.until(ExpectedConditions.presenceOfElementLocated(
+                By.name("email") // Sử dụng name thay vì CSS
+            ));
+            emailField.sendKeys("admin.nguyen@example.com");
+            
+            WebElement passField = wait.until(ExpectedConditions.presenceOfElementLocated(
+                By.name("password")
+            ));
+            passField.sendKeys("adminpass");
+            
+            driver.findElement(By.cssSelector("button[type='submit']")).click();
+            
+            // Chờ chuyển hướng với điều kiện URL
+            driver.get("http://localhost:8080/adminproducts");
+
+
+            // [3] FILL FORM VỚI LOCATOR ĐƠN GIẢN
+            // Tên sản phẩm
+            WebElement nameField = wait.until(ExpectedConditions.presenceOfElementLocated(
+                By.name("nameproduct") // Sử dụng name attribute
+            ));
+            nameField.sendKeys(PRODUCT_NAME);
+
+            // Giá sản phẩm
+            WebElement priceField = driver.findElement(By.name("price"));
+            priceField.clear();
+            priceField.sendKeys(PRODUCT_PRICE);
+
+            // Mô tả
+            WebElement descField = driver.findElement(By.name("description"));
+            descField.sendKeys(PRODUCT_DESCRIPTION);
+
+            // Upload ảnh
+            WebElement fileInput = driver.findElement(By.name("photoFile"));
+            fileInput.sendKeys(IMAGE_PATH);
+
+            // [4] SUBMIT FORM
+            driver.findElement(By.cssSelector("button[type='submit']")).click();
+
+            // [5] VERIFY
+            wait.until(ExpectedConditions.urlContains("adminproducts"));
+            
+            WebElement newProduct = wait.until(ExpectedConditions.visibilityOfElementLocated(
+                By.xpath("//*[contains(text(), '" + PRODUCT_NAME + "')]")
+            ));
+            assertTrue(newProduct.isDisplayed());
+
+        } catch (Exception e) {
+            System.err.println("❌ Lỗi: " + e.getMessage());
+            e.printStackTrace();
+            fail("Test thất bại");
+        } finally {
+            driver.quit();
+        }
+    }
+}

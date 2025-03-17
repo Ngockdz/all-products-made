@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en" th:replace="~{/Layouts/Layout :: view(~{::main})}">
+    <head>
+        <title>About</title>
+        <!-- Thêm thư viện Bootstrap Icons -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
+        <!-- Thêm phông chữ từ Google Fonts -->
+        <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+        <style>
+            body {
+                font-family: 'Roboto', sans-serif;
+                background-color: #ffffff;
+                color: #333;
+            }
+            .card {
+                border: none;
+                border-radius: 10px;
+                overflow: hidden;
+            }
+            .card-header {
+                background-color: #dc3545; /* Màu đỏ */
+                color: white;
+                font-weight: bold;
+                font-size: 1.5rem;
+                padding: 1.5rem;
+            }
+            .card-body {
+                background-color: #ffffff;
+                padding: 2rem;
+            }
+            .lead {
+                font-size: 1.1rem;
+                color: #555;
+            }
+            .list-group-item {
+                border: none;
+                padding: 0.75rem 1.25rem;
+                background-color: #f8f9fa;
+                margin-bottom: 0.5rem;
+                border-radius: 5px;
+            }
+            .list-group-item i {
+                color: #dc3545; /* Màu đỏ */
+                margin-right: 0.5rem;
+            }
+            .text-decoration-none {
+                color: #dc3545; /* Màu đỏ */
+            }
+            .text-decoration-none:hover {
+                text-decoration: underline;
+            }
+            .btn-primary {
+                background-color: #dc3545;
+                border: none;
+                padding: 0.5rem 1.5rem;
+                font-size: 1rem;
+            }
+            .btn-primary:hover {
+                background-color: #c82333;
+            }
+            .text-center {
+                color: #dc3545; /* Màu đỏ */
+            }
+        </style>
+    </head>
+    <body>
+        <main class="content">
+            <div class="container my-5">
+                <div class="row justify-content-center">
+                  <!-- Card giới thiệu -->
+                  <div class="col-md-8">
+                    <div class="card shadow-lg">
+                      <div class="card-header text-center">
+                        <h2 class="mb-0">Giới thiệu về Nguyễn Văn Ngọc</h2>
+                      </div>
+                      <div class="card-body">
+                        <p class="lead">
+                          Xin chào! Tôi là <strong>Nguyễn Văn Ngọc</strong>, một người đam mê lập trình và thiết kế web. Hiện tại, tôi đang phát triển các dự án liên quan đến <strong>giao diện người dùng (UI/UX)</strong>, hệ thống quản lý và lập trình web với HTML, CSS, JavaScript, Bootstrap, và Java.
+                        </p>
+                        <p>
+                          Tôi luôn mong muốn tạo ra những sản phẩm không chỉ đẹp mắt mà còn tối ưu về hiệu suất và trải nghiệm người dùng. Ngoài ra, tôi cũng có niềm yêu thích với <strong>viết lách</strong>, đặc biệt là sáng tác và dịch thuật. Tôi tin rằng mỗi dòng code hay mỗi câu chữ đều mang theo một câu chuyện riêng.
+                        </p>
+                        <p class="mb-3">Nếu bạn có bất kỳ câu hỏi hay muốn hợp tác, hãy liên hệ với tôi qua:</p>
+          
+                        <ul class="list-group">
+                          <li class="list-group-item">
+                            <i class="bi bi-envelope-fill"></i> <strong>Email:</strong> <a href="mailto:ngocnvpd10469@gmail.com" class="text-decoration-none">ngocnvpd10469@gmail.com</a>
+                          </li>
+                          <li class="list-group-item">
+                            <i class="bi bi-telephone-fill"></i> <strong>SĐT:</strong> <a href="tel:0348003609" class="text-decoration-none">0348003609</a>
+                          </li>
+                          <li class="list-group-item">
+                            <i class="bi bi-facebook"></i> <strong>Facebook:</strong> <a href="https://www.facebook.com/nguyen.van.ngoc.133019" target="_blank" class="text-decoration-none">Nguyễn Văn Ngọc</a>
+                          </li>
+                        </ul>
+          
+                        <p class="text-center mt-4">Rất vui được kết nối và chia sẻ cùng bạn! 🚀</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+        </main>
+    </body>
+</html>

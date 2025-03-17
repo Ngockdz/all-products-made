@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Danh sách nhân viên</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f8f9fa;
+        }
+        h3 {
+            color: #4a90e2;
+        }
+        select, label {
+            display: block;
+            margin: 10px 0;
+            font-size: 16px;
+        }
+        select {
+            width: 200px;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        input[type="radio"] {
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h3>Fill to SelectBox</h3>
+    <select name="cbo">
+        <th:block th:each="staff : ${list}">
+            <option th:value="${staff.id}" th:text="${staff.fullname}"></option>
+        </th:block>
+    </select>
+
+    <h3>Create Radio Button Group</h3>
+    <th:block th:each="staff : ${list}">
+        <label>
+            <input type="radio" name="rdo" th:value="${staff.id}">
+            <span th:text="${staff.fullname}"></span>
+        </label>
+    </th:block>
+</body>
+</html>

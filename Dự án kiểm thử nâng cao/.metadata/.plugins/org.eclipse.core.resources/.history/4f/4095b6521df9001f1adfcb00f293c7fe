@@ -1,0 +1,125 @@
+package CRUD;
+
+import org.junit.Test;
+import org.openqa.selenium.*;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.apache.commons.io.FileUtils;
+
+import java.io.File;
+import java.io.IOException;
+import java.time.Duration;
+
+import static org.junit.Assert.*;
+
+public class TestaddProductById {
+
+    final String PRODUCT_NAME = "New Product Test " + System.currentTimeMillis();
+    final String PRODUCT_PRICE = "10000";
+    final String PRODUCT_DESCRIPTION = "This is a test product description";
+    final String IMAGE_PATH = "D:\\java5\\AsmGD1\\AsmGD1\\asm\\src\\main\\resources\\static\\img\\NikeAirForce1.jpg";
+
+    @Test
+    public void testAddProduct() {
+        System.setProperty("webdriver.chrome.driver", "C:\\Users\\ASUS\\Downloads\\chromedriver-win64\\chromedriver.exe");
+        WebDriver driver = new ChromeDriver();
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(25));
+
+        try {
+            // [1] ĐĂNG NHẬP
+            driver.get("http://localhost:8080/login");
+            
+            // Điền thông tin đăng nhập
+            WebElement emailField = wait.until(ExpectedConditions.visibilityOfElementLocated(
+                By.cssSelector("input[name='email']")
+            ));
+            emailField.sendKeys("admin.nguyen@example.com");
+            
+            WebElement passField = wait.until(ExpectedConditions.visibilityOfElementLocated(
+                By.cssSelector("input[name='password']")
+            ));
+            passField.sendKeys("adminpass");
+            
+            // Submit form
+            WebElement loginButton = wait.until(ExpectedConditions.elementToBeClickable(
+                By.cssSelector("button[type='submit']")
+            ));
+            loginButton.click();
+            
+
+
+            // [2] TRUY CẬP TRANG THÊM SẢN PHẨM
+            driver.get("http://localhost:8080/admin/add-product");
+
+            // [3] KIỂM TRA FORM ĐÃ LOAD
+            // Sửa thành chờ phần tử tiêu đề thay vì form
+            wait.until(ExpectedConditions.visibilityOfElementLocated(
+                By.xpath("//h2[contains(text(), 'Thêm sản phẩm')]")
+            ));
+
+            // [4] ĐIỀN THÔNG TIN SẢN PHẨM
+            WebElement nameField = driver.findElement(By.name("nameproduct"));
+            scrollAndSendKeys(driver, nameField, PRODUCT_NAME);
+
+            WebElement priceField = driver.findElement(By.name("price"));
+            scrollAndSendKeys(driver, priceField, PRODUCT_PRICE);
+
+            WebElement descField = driver.findElement(By.name("description"));
+            scrollAndSendKeys(driver, descField, PRODUCT_DESCRIPTION);
+
+            // Upload ảnh
+            WebElement fileInput = driver.findElement(By.name("photoFile"));
+            ((JavascriptExecutor) driver).executeScript(
+                "arguments[0].style.display = 'block'; arguments[0].style.visibility = 'visible';", 
+                fileInput
+            );
+            fileInput.sendKeys(IMAGE_PATH);
+
+            // [5] SUBMIT FORM
+            WebElement submitButton = driver.findElement(
+                By.xpath("//button[contains(text(), 'Lưu thay đổi')]")
+            );
+            submitButton.click();
+
+            // [6] KIỂM TRA KẾT QUẢ
+            wait.until(ExpectedConditions.urlToBe("http://localhost:8080/adminproducts"));
+            
+            WebElement newProduct = wait.until(ExpectedConditions.visibilityOfElementLocated(
+                By.xpath("//h5[contains(., '" + PRODUCT_NAME + "')]")
+            ));
+            assertTrue("Không tìm thấy sản phẩm mới", newProduct.isDisplayed());
+
+        } catch (Exception e) {
+            takeScreenshot(driver, "error");
+            fail("Test thất bại: " + e.getMessage());
+        } finally {
+            if (driver != null) {
+                driver.quit();
+            }
+        }
+    }
+
+    private void scrollAndSendKeys(WebDriver driver, WebElement element, String text) {
+        ((JavascriptExecutor) driver).executeScript(
+            "arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", 
+            element
+        );
+        element.clear();
+        element.sendKeys(text);
+        try {
+            Thread.sleep(300);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    private void takeScreenshot(WebDriver driver, String fileName) {
+        try {
+            File screenshot = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
+            FileUtils.copyFile(screenshot, new File(fileName + "_screenshot.png"));
+        } catch (IOException e) {
+            System.err.println("Lỗi khi chụp màn hình: " + e.getMessage());
+        }
+    }
+}

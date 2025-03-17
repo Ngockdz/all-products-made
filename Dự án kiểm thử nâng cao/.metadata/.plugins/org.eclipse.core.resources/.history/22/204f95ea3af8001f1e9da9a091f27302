@@ -1,0 +1,115 @@
+package CRUDNhanVien;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.openqa.selenium.*;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import java.time.Duration;
+
+public class Add_new_user {
+    private WebDriver driver;
+    private WebDriverWait wait;
+
+    @Before
+    public void setUp() {
+        System.setProperty("webdriver.chrome.driver", "C:\\Users\\ADMIN\\Documents\\chromedriver-win64\\chromedriver-win64\\chromedriver.exe");
+        
+        driver = new ChromeDriver();
+        driver.manage().window().maximize();  // Mở trình duyệt toàn màn hình
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+
+        // ✅ Sửa lỗi: Gán `wait` cho biến toàn cục
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+    }
+
+    @Test
+    public void testAddNewEmployee() {
+        try {
+            // Bước 1: Đăng nhập vào hệ thống
+            System.out.println("Bước 1: Đăng nhập vào hệ thống...");
+            driver.get("http://localhost:8080/login");
+
+            // Nhập email
+            WebElement emailField = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("username")));
+            emailField.sendKeys("admin@gmail.com");
+            System.out.println("Đã nhập email: admin@gmail.com");
+
+            // Nhập mật khẩu
+            WebElement passField = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("password")));
+            passField.sendKeys("123456");
+            System.out.println("Đã nhập mật khẩu: 123456");
+
+            // Nhấn nút đăng nhập
+            WebElement loginButton = wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector(".btn.btn-primary")));
+            loginButton.click();
+            System.out.println("Đã nhấn nút đăng nhập.");
+
+            wait.until(ExpectedConditions.urlContains("admin"));
+            System.out.println("✅ Đăng nhập thành công! Đã chuyển hướng đến trang Admin.");
+
+            System.out.println("Bước 2: Nhấn đến danh sách nhân viên...");
+         // Bước 1: Nhấn vào mục "Danh sách nhân viên"
+            WebElement danhSachNhanVien = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//a[@href='/quanlynhanvien']")));
+            danhSachNhanVien.click();
+            System.out.println("✅ Đã nhấn vào mục 'Danh sách nhân viên'.");
+
+            // Bước 2: Nhấn vào nút mở modal "Thêm nhân viên"
+            WebElement nutMoModal = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//button[@data-target='#addModal' or contains(text(),'Thêm nhân viên')]")));
+            nutMoModal.click();
+            System.out.println("✅ Đã nhấn vào nút mở modal 'Thêm nhân viên'.");
+         // Bước 3: Chờ modal hiển thị hoàn toàn
+            WebElement modal = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("addModal")));
+
+            // Chờ modal có thuộc tính display: block;
+            wait.until(ExpectedConditions.attributeContains(modal, "style", "display: block"));
+            System.out.println("✅ Modal 'Thêm nhân viên' đã hiển thị.");
+
+            // Kiểm tra bằng JavaScript nếu vẫn lỗi
+            JavascriptExecutor js = (JavascriptExecutor) driver;
+            boolean isModalVisible = (Boolean) js.executeScript("return $('#addModal').is(':visible');");
+
+            if (!isModalVisible) {
+                throw new Exception("Modal 'Thêm nhân viên' không hiển thị đúng cách.");
+            }
+
+
+            // Bước 4: Nhập thông tin vào modal
+            WebElement usernameField = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("addUsername")));
+            usernameField.sendKeys("testuser");
+            System.out.println("✅ Đã nhập tên đăng nhập: testuser");
+
+            WebElement newEmailField = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("addEmail")));
+            newEmailField.sendKeys("testuser@example.com");
+            System.out.println("✅ Đã nhập email: testuser@example.com");
+            
+            WebElement passwordField = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("addPassword")));
+            passwordField.sendKeys("123456");
+            System.out.println("✅ Đã nhập mật khẩu.");
+
+            // Bước 5: Chọn vai trò "User"
+            WebElement roleDropdown = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("addRole")));
+            roleDropdown.sendKeys("User");
+            System.out.println("✅ Đã chọn vai trò: User");
+
+            // Bước 6: Nhấn nút "Thêm"
+            WebElement addButton = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//button[@type='submit' and @form='addForm']")));
+            addButton.click();
+            System.out.println("✅ Đã nhấn vào nút 'Thêm' để hoàn tất thêm nhân viên.");
+
+
+        } catch (Exception e) {
+            System.err.println("❌ Lỗi trong quá trình chạy test: " + e.getMessage());
+        }
+    }
+
+    @After
+    public void tearDown() {
+        if (driver != null) {
+            driver.quit();
+            System.out.println("✅ Đã đóng trình duyệt.");
+        }
+    }
+}

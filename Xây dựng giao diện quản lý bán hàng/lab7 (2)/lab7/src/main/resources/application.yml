@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: lab7
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: tranvpd09513@fpt.edu.vn
+    password: khongtan1ai
+    properties:
+      mail:
+        smpt:
+          auth: true
+        smtp:
+          starttls:
+            enable: true

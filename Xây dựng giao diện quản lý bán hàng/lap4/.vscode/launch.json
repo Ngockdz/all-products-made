@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-Lap4Application<lap4>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "lap.lap4.Lap4Application",
+            "projectName": "lap4",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}

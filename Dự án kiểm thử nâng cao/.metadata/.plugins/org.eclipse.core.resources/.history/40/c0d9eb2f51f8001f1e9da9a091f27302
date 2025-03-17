@@ -1,0 +1,112 @@
+package Cart;
+
+import org.apache.commons.io.FileUtils;
+import org.junit.Test;
+import org.openqa.selenium.*;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+import java.io.File;
+import java.io.IOException;
+import java.time.Duration;
+import static org.junit.Assert.*;
+
+public class demo {
+
+    @Test
+    public void testCartTotalAndCheckout() {
+        System.setProperty("webdriver.chrome.driver", "C:\\Users\\ASUS\\Downloads\\chromedriver-win64\\chromedriver.exe");
+        WebDriver driver = new ChromeDriver();
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(1000));
+
+        try {
+            // --- ĐĂNG NHẬP ---
+            driver.get("http://localhost:8080/login");
+            
+            // Điền thông tin đăng nhập
+            WebElement emailField = wait.until(ExpectedConditions.visibilityOfElementLocated(By.name("email")));
+            emailField.sendKeys("tranthib@example.com");
+            
+            WebElement passField = driver.findElement(By.name("password"));
+            passField.sendKeys("password123");
+            
+            driver.findElement(By.cssSelector("button[type='submit']")).click();
+            
+            // Chờ đăng nhập thành công
+            wait.until(ExpectedConditions.urlContains("/"));
+
+            // --- TRANG SẢN PHẨM ---
+            driver.get("http://localhost:8080/products");
+            
+            // Chờ load chi tiết sản phẩm
+            wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector(".product-card .price")));
+
+            // Lấy sản phẩm đầu tiên
+            WebElement firstProduct = driver.findElements(By.cssSelector(".product-card")).get(0);
+
+            // --- DEBUG: IN RA CẤU TRÚC HTML ---
+            System.out.println("DEBUG - Product HTML:\n" + firstProduct.getAttribute("outerHTML"));
+
+            // --- LẤY GIÁ SẢN PHẨM ---
+            WebElement priceElement = firstProduct.findElement(
+                By.cssSelector(".price") // Điều chỉnh theo HTML thực tế
+            );
+            String productPriceText = priceElement.getText().replaceAll("[^\\d]", "");
+            double productPrice = Double.parseDouble(productPriceText);
+
+            // --- THÊM VÀO GIỎ HÀNG ---
+            WebElement addButton = firstProduct.findElement(
+                By.xpath(".//button[contains(., 'Thêm vào giỏ')]") // XPath linh hoạt hơn
+            );
+            ((JavascriptExecutor) driver).executeScript("arguments[0].click();", addButton);
+            
+            // Xử lý alert
+            try {
+                wait.until(ExpectedConditions.alertIsPresent()).accept();
+            } catch (TimeoutException ignored) {}
+
+            // --- GIỎ HÀNG ---
+            driver.get("http://localhost:8080/cart");
+            
+            // Kiểm tra tổng tiền
+            WebElement totalElement = wait.until(ExpectedConditions.visibilityOfElementLocated(
+                By.xpath("//*[contains(text(), 'Tổng cộng')]/following-sibling::span")
+            ));
+            double displayedTotal = Double.parseDouble(totalElement.getText().replaceAll("[^\\d]", ""));
+            
+            assertEquals("Tổng tiền không khớp", productPrice, displayedTotal, 0.001);
+
+            // --- THANH TOÁN ---
+            WebElement checkoutBtn = wait.until(ExpectedConditions.elementToBeClickable(
+                By.cssSelector("a[href*='/checkout'], button#checkout-btn")
+            ));
+            checkoutBtn.click();
+
+            // --- XÁC NHẬN THÀNH CÔNG ---
+            WebElement successMessage = wait.until(ExpectedConditions.visibilityOfElementLocated(
+                By.xpath("//*[contains(text(), 'thành công')]")
+            ));
+            assertTrue(successMessage.isDisplayed());
+
+            // --- KIỂM TRA GIỎ HÀNG TRỐNG ---
+            driver.get("http://localhost:8080/cart");
+            WebElement emptyCart = wait.until(ExpectedConditions.visibilityOfElementLocated(
+                By.xpath("//*[contains(text(), 'giỏ hàng trống') or contains(text(), 'đang trống')]")
+            ));
+            assertTrue(emptyCart.isDisplayed());
+
+        } catch (Exception e) {
+            // Chụp màn hình khi fail
+            File screenshot = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
+            try {
+                FileUtils.copyFile(screenshot, new File("error_screenshot.png"));
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+            fail("Lỗi: " + e.getMessage());
+        } finally {
+            driver.quit();
+        }
+    }
+}

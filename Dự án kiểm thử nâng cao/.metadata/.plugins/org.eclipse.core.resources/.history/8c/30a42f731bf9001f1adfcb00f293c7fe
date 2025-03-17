@@ -1,0 +1,125 @@
+package CRUD;
+
+import org.junit.Test;
+import org.openqa.selenium.*;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import java.time.Duration;
+import static org.junit.Assert.*;
+
+public class TestaddProductById {
+
+    final String PRODUCT_NAME = "New Product Test " + System.currentTimeMillis();
+    final String PRODUCT_PRICE = "10000";
+    final String PRODUCT_DESCRIPTION = "This is a test product description";
+    final String IMAGE_PATH = "D:\\java5\\AsmGD1\\AsmGD1\\asm\\src\\main\\resources\\static\\img\\NikeAirForce1.jpg";
+
+    @Test
+    public void testAddProduct() {
+        System.setProperty("webdriver.chrome.driver", "C:\\Users\\ASUS\\Downloads\\chromedriver-win64\\chromedriver.exe");
+        WebDriver driver = new ChromeDriver();
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+
+        try {
+            // [1] ĐĂNG NHẬP
+            driver.get("http://localhost:8080/login");
+            
+            // Điền thông tin đăng nhập
+            WebElement emailField = wait.until(ExpectedConditions.visibilityOfElementLocated(
+                By.cssSelector("input[name='email']")
+            ));
+            emailField.sendKeys("admin.nguyen@example.com");
+            
+            WebElement passField = driver.findElement(By.cssSelector("input[name='password']"));
+            passField.sendKeys("adminpass");
+            
+            // Submit form đăng nhập
+            WebElement loginButton = driver.findElement(By.cssSelector("button[type='submit']"));
+            loginButton.click();
+            
+
+
+            // [2] TRUY CẬP TRANG THÊM SẢN PHẨM
+            driver.get("http://localhost:8080/admin/add-product");
+
+            // [3] FILL PRODUCT FORM WITH ENHANCED LOCATORS
+            // Product Name
+            WebElement nameField = wait.until(ExpectedConditions.visibilityOfElementLocated(
+                By.cssSelector("input.form-control[name='nameproduct'][required]")
+            ));
+            scrollToElement(driver, nameField);
+            nameField.sendKeys(PRODUCT_NAME);
+
+            // Price Field with input group
+            WebElement priceInputGroup = wait.until(ExpectedConditions.visibilityOfElementLocated(
+                By.cssSelector("div.input-group > input.form-control[name='price']")
+            ));
+            scrollToElement(driver, priceInputGroup);
+            priceInputGroup.clear();
+            priceInputGroup.sendKeys(PRODUCT_PRICE);
+
+            // Description Field
+            WebElement descriptionField = wait.until(ExpectedConditions.visibilityOfElementLocated(
+                By.cssSelector("textarea.form-control[name='description'][rows='3']")
+            ));
+            scrollToElement(driver, descriptionField);
+            descriptionField.sendKeys(PRODUCT_DESCRIPTION);
+
+            // File Upload
+            WebElement fileInput = wait.until(ExpectedConditions.presenceOfElementLocated(
+                By.cssSelector("input.form-control[name='photoFile'][type='file']")
+            ));
+            ((JavascriptExecutor) driver).executeScript(
+                "arguments[0].style.display = 'block';", fileInput // Hiển thị input file nếu bị ẩn
+            );
+            fileInput.sendKeys(IMAGE_PATH);
+
+            // [4] SUBMIT FORM
+            WebElement submitButton = wait.until(ExpectedConditions.elementToBeClickable(
+                By.cssSelector("button.btn-primary[type='submit']")
+            ));
+            ((JavascriptExecutor) driver).executeScript(
+                "arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", 
+                submitButton
+            );
+            submitButton.click();
+
+            // [5] VERIFICATION PHASE
+            // Wait for redirect and check URL
+            wait.until(ExpectedConditions.urlToBe("http://localhost:8080/adminproducts"));
+            
+            // Check success alert
+            WebElement successAlert = wait.until(ExpectedConditions.visibilityOfElementLocated(
+                By.cssSelector("div.alert.alert-success:not(.d-none)")
+            ));
+            assertTrue("Success alert missing", 
+                successAlert.getText().toLowerCase().contains("thành công")
+            );
+
+            // Verify product in list
+            WebElement productCard = wait.until(ExpectedConditions.visibilityOfElementLocated(
+                By.xpath("//div[contains(@class,'card-body')]//h5[contains(.,'" + PRODUCT_NAME + "')]")
+            ));
+            assertTrue("New product not found", productCard.isDisplayed());
+
+        } catch (Exception e) {
+            fail("Test failed: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            driver.quit();
+        }
+    }
+
+    private void scrollToElement(WebDriver driver, WebElement element) {
+        try {
+            ((JavascriptExecutor) driver).executeScript(
+                "arguments[0].scrollIntoView({behavior: 'instant', block: 'center', inline: 'center'});", 
+                element
+            );
+            Thread.sleep(300);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+}

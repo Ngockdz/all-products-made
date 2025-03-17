@@ -1,0 +1,83 @@
+package Login;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.Cookie;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import java.time.Duration;
+
+public class LogoutTest {
+    public static void main(String[] args) {
+        System.setProperty("webdriver.chrome.driver", "C:\\Users\\ASUS\\Downloads\\chromedriver-win64\\chromedriver.exe");
+        WebDriver driver = new ChromeDriver();
+        JavascriptExecutor js = (JavascriptExecutor) driver;
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+
+        try {
+            // Đăng nhập trước khi test logout
+            driver.get("http://localhost:8080/login");
+            
+            WebElement emailField = wait.until(ExpectedConditions.visibilityOfElementLocated(By.name("email")));
+            emailField.sendKeys("tranthib@example.com");
+            
+            WebElement passField = driver.findElement(By.name("password"));
+            passField.sendKeys("password123");
+            
+            driver.findElement(By.cssSelector("button[type='submit']")).click();
+            
+            // Chờ đăng nhập thành công
+            wait.until(ExpectedConditions.urlContains("/"));
+            System.out.println("✅ Đăng nhập thành công");
+
+            // --- BẮT ĐẦU TEST LOGOUT ---
+            WebElement logoutBtn = wait.until(ExpectedConditions.elementToBeClickable(
+                By.cssSelector("a.btn.logout-btn[href='/logout']") // Sửa selector theo navbar mới
+            ));
+            
+            // Scroll đến nút logout nếu cần
+            js.executeScript("arguments[0].scrollIntoView({block: 'center'});", logoutBtn);
+            Thread.sleep(500); // Chờ render
+            
+            logoutBtn.click();
+            System.out.println("✔ Đã click logout");
+
+            // Verify chuyển hướng
+            wait.until(ExpectedConditions.or(
+                ExpectedConditions.urlToBe("http://localhost:8080/login"),
+                ExpectedConditions.urlToBe("http://localhost:8080/")
+            ));
+
+            // Kiểm tra URL
+            if (driver.getCurrentUrl().equals("http://localhost:8080/login")) {
+                System.out.println("✅ Đăng xuất thành công - Chuyển hướng về trang login");
+            } else {
+                System.out.println("⚠️ Chuyển hướng đến: " + driver.getCurrentUrl());
+                
+                // Thử truy cập trang profile
+                driver.get("http://localhost:8080/profile");
+                if (driver.getCurrentUrl().contains("/login")) {
+                    System.out.println("✅ Xác nhận không thể truy cập trang bảo mật");
+                }
+            }
+
+            // Kiểm tra session cookie
+            Cookie sessionCookie = driver.manage().getCookieNamed("JSESSIONID");
+            if (sessionCookie == null) {
+                System.out.println("✅ Session cookie đã được xóa");
+            } else {
+                System.out.println("❌ Session cookie vẫn tồn tại: " + sessionCookie.getValue());
+            }
+
+        } catch (Exception e) {
+            System.out.println("⚠️ Lỗi hệ thống: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            driver.quit();
+            System.out.println("✔ Đã đóng trình duyệt");
+        }
+    }
+}

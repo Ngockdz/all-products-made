@@ -1,0 +1,134 @@
+package CRUD;
+
+import org.junit.Test;
+import org.openqa.selenium.*;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import java.time.Duration;
+import static org.junit.Assert.*;
+
+public class TestRemoveProductById {
+
+    final String TARGET_PRODUCT_ID = "42"; // Thay bằng ID sản phẩm thực tế cần xóa
+
+    @Test
+    public void testRemoveProductById() {
+        System.setProperty("webdriver.chrome.driver", "C:\\Users\\ASUS\\Downloads\\chromedriver-win64\\chromedriver.exe");
+        WebDriver driver = new ChromeDriver();
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+
+        try {
+            // Mở trang đăng nhập
+            driver.get("http://localhost:8080/login");
+            System.out.println("Đã mở trang đăng nhập");
+
+            // Nhập thông tin đăng nhập
+            WebElement emailField = wait.until(ExpectedConditions.visibilityOfElementLocated(By.name("email")));
+            emailField.sendKeys("tranthib@example.com");
+            System.out.println("Đã nhập email");
+
+            WebElement passField = driver.findElement(By.name("password"));
+            passField.sendKeys("password123");
+            System.out.println("Đã nhập mật khẩu");
+
+            // Click nút đăng nhập
+            WebElement loginButton = driver.findElement(By.cssSelector("button[type='submit']"));
+            loginButton.click();
+            System.out.println("Đã click nút đăng nhập");
+
+            driver.get("http://localhost:8080/");
+            
+            // Kiểm tra phần tử đặc trưng trên trang chủ
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector(".navbar-brand")));
+            System.out.println("✅ Đăng nhập thành công! Đang ở trang chủ");
+
+            // Bước 2: Đi đến trang quản lý sản phẩm
+            driver.get("http://localhost:8080/adminproducts");
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector(".admin-container")));
+
+            // Bước 3: Tìm sản phẩm theo ID
+            WebElement productCard = null;
+            WebElement deleteButton = null;
+            String actualProductId = null;
+
+            for (WebElement card : driver.findElements(By.cssSelector(".admin-card"))) {
+                WebElement deleteForm = card.findElement(By.cssSelector("form[action^='/admin/delete-product/']"));
+                String actionUrl = deleteForm.getAttribute("action");
+                String productId = actionUrl.substring(actionUrl.lastIndexOf("/") + 1);
+
+                if (productId.equals(TARGET_PRODUCT_ID)) {
+                    productCard = card;
+                    deleteButton = deleteForm.findElement(By.cssSelector("button.btn-danger"));
+                    actualProductId = productId;
+                    break;
+                }
+            }
+
+            assertNotNull("Không tìm thấy sản phẩm có ID: " + TARGET_PRODUCT_ID, productCard);
+            assertNotNull("Không tìm thấy nút xóa", deleteButton);
+
+            // Bước 4: Cuộn đến nút xóa và đảm bảo nó có thể click
+            scrollToElement(driver, deleteButton);
+            wait.until(ExpectedConditions.elementToBeClickable(deleteButton));
+
+            // Dùng JavaScript click nếu cần
+            try {
+                deleteButton.click();
+            } catch (ElementClickInterceptedException e) {
+                System.out.println("Nút bị chặn, dùng JavaScript để click.");
+                ((JavascriptExecutor) driver).executeScript("arguments[0].click();", deleteButton);
+            }
+
+            // Xác nhận hộp thoại
+            wait.until(ExpectedConditions.alertIsPresent());
+            driver.switchTo().alert().accept();
+
+            // Bước 5: Xác minh kết quả
+            wait.until(ExpectedConditions.stalenessOf(productCard));
+            driver.navigate().refresh();
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector(".admin-container")));
+
+            boolean isProductPresent = checkProductExistence(driver, actualProductId);
+            assertFalse("Sản phẩm vẫn tồn tại trong hệ thống", isProductPresent);
+
+            // Kiểm tra thông báo thành công
+            WebElement successAlert = wait.until(ExpectedConditions.visibilityOfElementLocated(
+                By.xpath("//div[contains(@class,'alert-success') and contains(.,'thành công')]")
+            ));
+
+            System.out.println("✅ Xóa sản phẩm thành công - ID: " + actualProductId);
+
+        } catch (Exception e) {
+            System.err.println("❌ Lỗi: " + e.getMessage());
+            e.printStackTrace();
+            fail("Test thất bại");
+        } finally {
+            driver.quit();
+        }
+    }
+
+    private void scrollToElement(WebDriver driver, WebElement element) {
+        ((JavascriptExecutor) driver).executeScript(
+            "arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", 
+            element
+        );
+        try {
+            Thread.sleep(500); // Đợi scroll hoàn tất
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private boolean checkProductExistence(WebDriver driver, String productId) {
+        for (WebElement card : driver.findElements(By.cssSelector(".admin-card"))) {
+            WebElement deleteForm = card.findElement(By.cssSelector("form[action^='/admin/delete-product/']"));
+            String actionUrl = deleteForm.getAttribute("action");
+            String currentProductId = actionUrl.substring(actionUrl.lastIndexOf("/") + 1);
+            if (currentProductId.equals(productId)) {
+                return true;
+            }
+        }
+        return false;
+    }
+}

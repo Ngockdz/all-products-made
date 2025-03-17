@@ -1,0 +1,68 @@
+package CRUD;
+
+import org.junit.Test;
+import org.openqa.selenium.*;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import java.time.Duration;
+import static org.junit.Assert.*;
+
+public class TestRemoveProductById {
+
+    final String TARGET_PRODUCT_ID = "42";
+
+    @Test
+    public void testRemoveProductById() {
+        System.setProperty("webdriver.chrome.driver", "C:\\Users\\ASUS\\Downloads\\chromedriver-win64\\chromedriver.exe");
+        WebDriver driver = new ChromeDriver();
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+
+        try {
+            // [1] Đăng nhập
+            driver.get("http://localhost:8080/login");
+            WebElement emailField = wait.until(ExpectedConditions.visibilityOfElementLocated(By.name("email")));
+            emailField.sendKeys("tranthib@example.com");
+            
+            WebElement passField = driver.findElement(By.name("password"));
+            passField.sendKeys("password123");
+            
+            driver.findElement(By.cssSelector("button[type='submit']")).click();
+            wait.until(ExpectedConditions.urlContains("adminproducts"));
+
+            // [2] Tìm sản phẩm cần xóa
+            WebElement deleteForm = wait.until(ExpectedConditions.presenceOfElementLocated(
+                By.cssSelector("form[action^='/admin/delete-product/" + TARGET_PRODUCT_ID + "']")
+            ));
+            
+            // [3] Scroll và click bằng JavaScript
+            WebElement deleteButton = deleteForm.findElement(By.cssSelector("button.btn-danger"));
+            ((JavascriptExecutor) driver).executeScript(
+                "arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", 
+                deleteButton
+            );
+            
+            // Chờ nút click được và click bằng JS
+            wait.until(ExpectedConditions.elementToBeClickable(deleteButton));
+            ((JavascriptExecutor) driver).executeScript("arguments[0].click();", deleteButton);
+            
+            // [4] Xử lý confirm alert
+            wait.until(ExpectedConditions.alertIsPresent());
+            driver.switchTo().alert().accept();
+            
+            // [5] Verify
+            wait.until(ExpectedConditions.invisibilityOf(deleteForm));
+            
+            // Kiểm tra thông báo thành công
+            WebElement successAlert = wait.until(ExpectedConditions.visibilityOfElementLocated(
+                By.cssSelector("div.alert-success")
+            ));
+            assertTrue(successAlert.getText().toLowerCase().contains("thành công"));
+
+        } catch (Exception e) {
+            fail("Test thất bại: " + e.getMessage());
+        } finally {
+            driver.quit();
+        }
+    }
+}

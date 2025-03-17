@@ -1,0 +1,63 @@
+package Cart;
+
+import org.junit.Test;
+import org.openqa.selenium.*;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+import java.time.Duration;
+
+import static org.junit.Assert.*;
+
+public class demo {
+
+    @Test
+    public void testCartTotalAndCheckout() {
+        System.setProperty("webdriver.chrome.driver", "C:\\Users\\ASUS\\Downloads\\chromedriver-win64\\chromedriver.exe");
+        WebDriver driver = null;
+        try {
+            driver = new ChromeDriver();
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+
+            // --- ĐĂNG NHẬP ---
+            driver.get("http://localhost:8080/login");
+            System.out.println("Đang đăng nhập");
+            
+            WebElement emailField = wait.until(ExpectedConditions.visibilityOfElementLocated(By.name("email")));
+            emailField.sendKeys("tranthib@example.com");
+            
+            WebElement passField = driver.findElement(By.name("password"));
+            passField.sendKeys("password123");
+            
+            driver.findElement(By.cssSelector("button[type='submit']")).click();
+            
+            wait.until(ExpectedConditions.urlContains("/"));
+            System.out.println("Đăng nhập thành công");
+
+            // --- TRANG SẢN PHẨM ---
+            driver.get("http://localhost:8080/products");
+            System.out.println("Đang ở trang sản phẩm");
+
+            // --- THÊM VÀO GIỎ HÀNG ---
+            WebElement productCard = wait.until(ExpectedConditions.presenceOfElementLocated(
+                By.xpath("//div[@class='card product-card'][1]"))); // Chọn sản phẩm đầu tiên
+
+            WebElement addToCartForm = productCard.findElement(By.tagName("form"));
+            WebElement addButton = addToCartForm.findElement(By.tagName("button"));
+            addButton.click();
+            System.out.println("Đã thêm sản phẩm vào giỏ hàng");
+
+            // Chờ giỏ hàng được cập nhật (tuỳ vào logic ứng dụng)
+            wait.until(ExpectedConditions.invisibilityOf(addButton));
+            
+        } catch (Exception e) {
+            fail("Lỗi: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            if (driver != null) {
+                driver.quit();
+            }
+        }
+    }
+}

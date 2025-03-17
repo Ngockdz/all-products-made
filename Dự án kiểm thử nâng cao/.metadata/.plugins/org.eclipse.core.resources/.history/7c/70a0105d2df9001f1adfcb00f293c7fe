@@ -1,0 +1,47 @@
+package CRUD;
+
+import org.junit.Test;
+import org.openqa.selenium.*;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.Select;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import java.time.Duration;
+import static org.junit.Assert.*;
+
+public class EditTestUser {
+
+    @Test
+    public void testEditEmployee() {
+        System.setProperty("webdriver.chrome.driver", "C:\\Users\\ASUS\\Downloads\\chromedriver-win64\\chromedriver.exe");
+        WebDriver driver = new ChromeDriver();
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+
+        try {
+            // 1. Truy cập trang quản lý người dùng
+            driver.get("http://localhost:8080/adminusers");
+            System.out.println("✔ Đã truy cập trang quản lý người dùng");
+
+            // 2. Tìm và click nút Sửa với XPath cải tiến
+            WebElement editButton = wait.until(ExpectedConditions.elementToBeClickable(
+                By.xpath("//tr[td[contains(text(), 'tester_selenium')]//a[contains(@class, 'btn-warning') and contains(text(), 'Sửa')]")));
+            
+            // Scroll và click bằng JavaScript
+            ((JavascriptExecutor) driver).executeScript(
+                "arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", 
+                editButton
+            );
+            Thread.sleep(500); // Đợi scroll hoàn tất
+            ((JavascriptExecutor) driver).executeScript("arguments[0].click();", editButton);
+            System.out.println("✔ Đã mở form chỉnh sửa");
+
+            // ... (phần còn lại giữ nguyên)
+
+        } catch (Exception e) {
+            fail("Lỗi: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            driver.quit();
+        }
+    }
+}

@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:replace="~{/Layouts/Layout :: view(~{::main})}">
+<head>
+    <!-- Thêm thẻ head để đảm bảo cấu trúc HTML hợp lệ -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tất cả sản phẩm</title>
+</head>
+<body>
+    <main class="content">
+        <style>
+            .container {
+                margin-top: 20px;
+            }
+            .product-card {
+                box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+                transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+                cursor: pointer;
+                border-radius: 10px;
+                overflow: hidden;
+                background-color: #fff;
+                position: relative;
+            }
+            .product-card:hover {
+                transform: scale(1.03);
+                box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.15);
+            }
+            .product-card img {
+                max-height: 100px;
+                object-fit: cover;
+                width: 100%;
+                border-bottom: 1px solid #eee;
+            }
+            .card-body {
+                padding: 15px;
+                text-align: center;
+            }
+            .card-title {
+                font-size: 1.25rem;
+                font-weight: bold;
+                margin-bottom: 10px;
+                color: #333;
+                height: 3em;
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+            }
+            .card-text {
+                font-size: 1rem;
+                color: #666;
+                margin-bottom: 15px;
+            }
+            .price-tag {
+                font-size: 1.1rem;
+                color: #e60023;
+                font-weight: bold;
+                margin: 10px 0;
+            }
+            .btn-primary {
+                background-color: #000;
+                border: none;
+                padding: 10px 20px;
+                font-size: 1rem;
+                border-radius: 5px;
+                transition: background-color 0.2s ease-in-out;
+            }
+            .btn-primary:hover {
+                background-color: #333;
+            }
+            h1 {
+                font-size: xx-large;
+                font-weight: bold;
+                font-family: 'Times New Roman', Times, serif;
+                color: #333;
+                margin-bottom: 20px;
+            }
+            h2 {
+                font-size: 1.75rem;
+                font-weight: bold;
+                color: #333;
+                margin-bottom: 20px;
+            }
+            .quantity-input {
+                width: 80px;
+                text-align: center;
+                border: 1px solid #ddd;
+                border-radius: 5px;
+                padding: 5px;
+            }
+            .add-to-cart-btn {
+                width: 100%;
+                padding: 10px;
+                font-size: 1rem;
+                border-radius: 5px;
+                transition: background-color 0.2s ease-in-out;
+            }
+            .add-to-cart-btn:hover {
+                background-color: #333;
+            }
+            .modal-content {
+                border-radius: 10px;
+            }
+            .modal-header {
+                border-bottom: 1px solid #eee;
+            }
+            .modal-title {
+                font-size: 1.5rem;
+                font-weight: bold;
+                color: #333;
+            }
+            .modal-body {
+                padding: 20px;
+            }
+            .modal-body img {
+                border-radius: 10px;
+            }
+            .modal-body p {
+                margin-bottom: 15px;
+            }
+            .modal-body .text-danger {
+                font-size: 1.25rem;
+                font-weight: bold;
+            }
+            .modal-body .text-muted {
+                font-size: 1rem;
+                color: #666;
+            }
+            .navindex {
+                background-color: #f8f9fa;
+                padding: 10px 20px;
+                border-radius: 8px;
+                margin-bottom: 20px;
+                box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+                z-index: 1000;
+                top: 0;
+                position: sticky;
+            }
+            .navindex a {
+                color: #000;
+                text-decoration: none;
+                font-size: 1.1rem;
+                font-weight: bold;
+                transition: color 0.3s ease;
+                padding: 20px;
+            }
+            .navindex a:hover {
+                color: #007bff;
+            }
+        </style>
+
+        <div class="container mt-5">
+            <h1 class="text-center mb-4">Tất cả sản phẩm</h1>
+            
+            <div class="navindex">
+                <a href="#sneakers">Giày Sneaker</a>
+                <a href="#running">Giày Chạy Bộ</a>
+                <a href="#basketball">Giày Bóng Rổ</a>
+                <a href="#soccer">Giày Đá Bóng</a>
+                <a href="#nikeApparel">Trang Phục Nike</a>
+                <a href="#newProduct">Sản Phẩm Mới</a>
+            </div>
+
+            <div>
+                <!-- Giày Sneaker -->
+                <div id="sneakers">
+                    <h2>Giày Sneaker</h2>
+                    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-5 g-4">
+                        <div class="col" th:each="product : ${sneakers}">
+                            <div class="card product-card h-100" 
+                                 th:attr="data-product-id=${product.id}, data-product-description=${product.description}">
+                                <img th:src="${product.photo}" class="card-img-top" alt="Product Image"/>
+                                <div class="card-body">
+                                    <h5 class="card-title" th:text="${product.nameproduct}"></h5>
+                                    <p class="card-text price-tag" th:text="'Giá: ' + ${#numbers.formatCurrency(product.price)}"></p>
+                                    <form th:action="@{/add-to-cart}" method="post">
+                                        <input type="hidden" name="productId" th:value="${product.id}">
+                                        <button type="submit" class="btn btn-primary">Thêm vào giỏ hàng</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <!-- Giày Chạy Bộ -->
+                <div id="running">
+                    <h2>Giày Chạy Bộ</h2>
+                    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-5 g-4">
+                        <div class="col" th:each="product : ${running}">
+                            <div class="card product-card h-100" 
+                                 th:attr="data-product-id=${product.id}, data-product-description=${product.description}">
+                                <img th:src="${product.photo}" class="card-img-top" alt="Product Image"/>
+                                <div class="card-body">
+                                    <h5 class="card-title" th:text="${product.nameproduct}"></h5>
+                                    <p class="card-text price-tag" th:text="'Giá: ' + ${#numbers.formatCurrency(product.price)}"></p>
+                                    <form th:action="@{/add-to-cart}" method="post">
+                                        <input type="hidden" name="productId" th:value="${product.id}">
+                                        <button type="submit" class="btn btn-primary">Thêm vào giỏ hàng</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <!-- Giày Bóng Rổ -->
+                <div id="basketball">
+                    <h2>Giày Bóng Rổ</h2>
+                    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-5 g-4">
+                        <div class="col" th:each="product : ${basketball}">
+                            <div class="card product-card h-100" 
+                                 th:attr="data-product-id=${product.id}, data-product-description=${product.description}">
+                                <img th:src="${product.photo}" class="card-img-top" alt="Product Image"/>
+                                <div class="card-body">
+                                    <h5 class="card-title" th:text="${product.nameproduct}"></h5>
+                                    <p class="card-text price-tag" th:text="'Giá: ' + ${#numbers.formatCurrency(product.price)}"></p>
+                                    <form th:action="@{/add-to-cart}" method="post">
+                                        <input type="hidden" name="productId" th:value="${product.id}">
+                                        <button type="submit" class="btn btn-primary">Thêm vào giỏ hàng</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <!-- Giày Đá Bóng -->
+                <div id="soccer">
+                    <h2>Giày Đá Bóng</h2>
+                    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-5 g-4">
+                        <div class="col" th:each="product : ${soccer}">
+                            <div class="card product-card h-100" 
+                                 th:attr="data-product-id=${product.id}, data-product-description=${product.description}">
+                                <img th:src="${product.photo}" class="card-img-top" alt="Product Image"/>
+                                <div class="card-body">
+                                    <h5 class="card-title" th:text="${product.nameproduct}"></h5>
+                                    <p class="card-text price-tag" th:text="'Giá: ' + ${#numbers.formatCurrency(product.price)}"></p>
+                                    <form th:action="@{/add-to-cart}" method="post">
+                                        <input type="hidden" name="productId" th:value="${product.id}">
+                                        <button type="submit" class="btn btn-primary">Thêm vào giỏ hàng</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <!-- Trang Phục Nike -->
+                <div id="nikeApparel">
+                    <h2>Trang Phục Nike</h2>
+                    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-5 g-4">
+                        <div class="col" th:each="product : ${nikeApparel}">
+                            <div class="card product-card h-100" 
+                                 th:attr="data-product-id=${product.id}, data-product-description=${product.description}">
+                                <img th:src="${product.photo}" class="card-img-top" alt="Product Image"/>
+                                <div class="card-body">
+                                    <h5 class="card-title" th:text="${product.nameproduct}"></h5>
+                                    <p class="card-text price-tag" th:text="'Giá: ' + ${#numbers.formatCurrency(product.price)}"></p>
+                                    <form th:action="@{/add-to-cart}" method="post">
+                                        <input type="hidden" name="productId" th:value="${product.id}">
+                                        <button type="submit" class="btn btn-primary">Thêm vào giỏ hàng</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <div id="newProduct">
+                    <h2>Sản Phẩm Mới</h2>
+                    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-5 g-4">
+                        <div class="col" th:each="product : ${newProduct}">
+                            <div class="card product-card h-100" 
+                                 th:attr="data-product-id=${product.id}, data-product-description=${product.description}">
+                                <img th:src="${product.photo}" class="card-img-top" alt="Product Image"/>
+                                <div class="card-body">
+                                    <h5 class="card-title" th:text="${product.nameproduct}"></h5>
+                                    <p class="card-text price-tag" th:text="'Giá: ' + ${#numbers.formatCurrency(product.price)}"></p>
+                                    <form th:action="@{/add-to-cart}" method="post">
+                                        <input type="hidden" name="productId" th:value="${product.id}">
+                                        <button type="submit" class="btn btn-primary">Thêm vào giỏ hàng</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal xem chi tiết sản phẩm -->
+            <div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 id="modalProductName" class="modal-title"></h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <img id="modalProductImage" class="img-fluid rounded" alt="Product Image">
+                                </div>
+                                <div class="col-md-6">
+                                    <p id="modalProductDescription" class="text-muted"></p>
+                                    <p id="modalProductPrice" class="text-danger fw-bold"></p>
+                                    <form th:action="@{/add-to-cart}" method="post">
+                                        <input type="hidden" name="productId" id="modalProductId">
+                                        <div class="d-flex align-items-center gap-2 mb-3">
+                                            <label for="quantity" class="form-label">Số lượng:</label>
+                                            <input type="number" name="quantity" class="form-control quantity-input" value="1" min="1">
+                                        </div>
+                                        <button type="submit" class="btn btn-primary add-to-cart-btn">Thêm vào giỏ hàng</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const productCards = document.querySelectorAll('.product-card');
+                productCards.forEach(card => {
+                    card.addEventListener('click', function (e) {
+                        if (!e.target.closest('form')) {
+                            const productId = card.getAttribute('data-product-id');
+                            const productName = card.querySelector('.card-title').textContent;
+                            const productImage = card.querySelector('img').src;
+                            const productPrice = card.querySelector('.price-tag').textContent;
+                            const productDescription = card.getAttribute('data-product-description');
+                            
+                            // Điền thông tin vào modal
+                            document.getElementById('modalProductName').textContent = productName;
+                            document.getElementById('modalProductImage').src = productImage;
+                            document.getElementById('modalProductDescription').textContent = productDescription;
+                            document.getElementById('modalProductPrice').textContent = productPrice;
+                            document.getElementById('modalProductId').value = productId;
+                            
+                            new bootstrap.Modal(document.getElementById('productModal')).show();
+                        }
+                    });
+                });
+            });
+        </script>
+    </main>
+</body>
+</html>

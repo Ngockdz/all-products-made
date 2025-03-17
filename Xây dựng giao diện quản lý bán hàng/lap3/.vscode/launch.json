@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-Lap3Application<lap3>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "lap3.lap3.Lap3Application",
+            "projectName": "lap3",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}

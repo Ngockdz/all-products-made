@@ -1,0 +1,90 @@
+package CRUD;
+
+import org.junit.Test;
+import org.openqa.selenium.*;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.Select;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import java.time.Duration;
+import static org.junit.Assert.*;
+
+public class AddNewEMPLOYEE {
+
+    @Test
+    public void testAddNewEmployee() {
+    	 System.setProperty("webdriver.chrome.driver", "C:\\Users\\ASUS\\Downloads\\chromedriver-win64\\chromedriver.exe");
+        WebDriver driver = new ChromeDriver();
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+
+        try {
+        	// Bước 1: Đăng nhập vào hệ thống
+            System.out.println("Bước 1: Đăng nhập vào hệ thống...");
+            driver.get("http://localhost:8080/login");
+
+            // Nhập email
+            WebElement emailField = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("email")));
+            emailField.sendKeys("vanc@example.com");
+            System.out.println("Đã nhập email: vanc@example.com");
+
+            // Nhập mật khẩu
+            WebElement passField = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("password")));
+            passField.sendKeys("password789");
+            System.out.println("Đã nhập mật khẩu: password789");
+
+            // Nhấn nút đăng nhập
+            WebElement loginButton = driver.findElement(By.cssSelector("button.btn-login"));
+            loginButton.click();
+            System.out.println("Đã nhấn nút đăng nhập.");
+            
+            // Đi đến trang thêm người dùng
+            driver.get("http://localhost:8080/adminusers");
+
+            // Mở form thêm người dùng
+            WebElement addButton = wait.until(ExpectedConditions.elementToBeClickable(
+                By.xpath("//a[contains(text(),'Thêm người dùng')]"))); // Sử dụng XPath chính xác hơn
+            addButton.click();
+            System.out.println("✔ Đã mở form thêm người dùng");
+
+            // Điền thông tin form
+            WebElement form = wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector(".card")));
+            
+            // Điền username với ID chính xác
+            WebElement usernameField = form.findElement(By.cssSelector("input[placeholder='Nhập tên người dùng']"));
+            usernameField.sendKeys("tester_selenium");
+            
+            // Điền email
+            form.findElement(By.cssSelector("input[placeholder='example@email.com']"))
+                .sendKeys("tester_selenium@example.com");
+            
+            // Điền password
+            form.findElement(By.cssSelector("input[type='password']"))
+                .sendKeys("Test@123");
+            
+            // Chọn vai trò sử dụng selector chính xác
+            WebElement roleSelect = form.findElement(By.cssSelector("select.form-select"));
+            new Select(roleSelect).selectByValue("ADMIN");
+
+            // Submit form với xử lý đặc biệt
+            WebElement submitButton = wait.until(ExpectedConditions.elementToBeClickable(
+                By.cssSelector("button.btn-primary[type='submit']")));
+            
+            // Thử click bằng JavaScript nếu thông thường thất bại
+            try {
+                submitButton.click();
+                System.out.println("✔ Đã submit form bằng click thông thường");
+            } catch (ElementClickInterceptedException e) {
+                System.out.println("⚠ Click thông thường thất bại, thử dùng JavaScript");
+                JavascriptExecutor js = (JavascriptExecutor) driver;
+                js.executeScript("arguments[0].click();", submitButton);
+                System.out.println("✔ Đã submit form bằng JavaScript");
+            }
+
+        } catch (Exception e) {
+            fail("Lỗi: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+  
+        }
+    }
+}

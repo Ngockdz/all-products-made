@@ -1,0 +1,69 @@
+package Cart;
+
+import org.apache.commons.io.FileUtils;
+import org.junit.Test;
+import org.openqa.selenium.*;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.remote.RemoteWebDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+import java.io.File;
+import java.io.IOException;
+import java.time.Duration;
+import static org.junit.Assert.*;
+
+public class demo {
+
+    @Test
+    public void testCartTotalAndCheckout() {
+        System.setProperty("webdriver.chrome.driver", "C:\\Users\\ASUS\\Downloads\\chromedriver-win64\\chromedriver.exe");
+        
+        // Cấu hình Chrome để giữ trình duyệt mở sau khi test
+        ChromeOptions options = new ChromeOptions();
+        options.setExperimentalOption("debuggerAddress", "localhost:9222");
+        options.addArguments("--remote-debugging-port=9222");
+        options.addArguments("--user-data-dir=chrome_profile");
+        
+        WebDriver driver = null;
+        try {
+            driver = new ChromeDriver(options);
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+
+            // --- ĐĂNG NHẬP ---
+            driver.get("http://localhost:8080/login");
+            System.out.println("Đang mở trang đăng nhập: " + driver.getCurrentUrl());
+            
+            // Điền thông tin đăng nhập
+            WebElement emailField = wait.until(ExpectedConditions.visibilityOfElementLocated(By.name("email")));
+            emailField.sendKeys("tranthib@example.com");
+            
+            WebElement passField = driver.findElement(By.name("password"));
+            passField.sendKeys("password123");
+            
+            driver.findElement(By.cssSelector("button[type='submit']")).click();
+            
+            // Chờ đăng nhập thành công
+            wait.until(ExpectedConditions.urlContains("/"));
+            System.out.println("Đăng nhập thành công! URL hiện tại: " + driver.getCurrentUrl());
+
+            // --- TRANG SẢN PHẨM ---
+            driver.get("http://localhost:8080/products");
+            System.out.println("Đang mở trang sản phẩm: " + driver.getCurrentUrl());
+            
+            // Hiển thị giao diện thực tế
+            ((JavascriptExecutor) driver).executeScript("alert('Đang hiển thị trang sản phẩm')");
+            Thread.sleep(2000); // Dừng 2 giây để xem
+            driver.switchTo().alert().accept();
+
+            // ... (phần còn lại của test case giữ nguyên)
+
+        } catch (Exception e) {
+            // Xử lý lỗi
+        } finally {
+            // Comment dòng này để giữ trình duyệt mở sau khi test
+            // if (driver != null) driver.quit();
+        }
+    }
+}

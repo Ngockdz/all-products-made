@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Danh Sách Trạng Thái Nhân Viên</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f8f9fa;
+            margin: 20px;
+            color: #333;
+        }
+        h2 {
+            text-align: center;
+            color: #4a90e2;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px auto;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        thead {
+            background-color: #4a90e2;
+            color: white;
+        }
+        th, td {
+            padding: 12px;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 14px;
+        }
+        tbody tr:nth-child(odd) {
+            background-color: #e8f4fc;
+        }
+        tbody tr:nth-child(even) {
+            background-color: #ffffff;
+        }
+        tbody tr:hover {
+            background-color: #d4ebf8;
+            transition: background-color 0.3s ease;
+        }
+        td {
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <h2>Danh Sách Trạng Thái Nhân Viên</h2>
+    <table>
+        <thead>
+            <tr>
+                <th rowspan="2">Họ Và Tên</th>
+                <th colspan="6">Trạng Thái</th>
+            </tr>
+            <tr>
+                <th>Index</th>
+                <th>Count</th>
+                <th>First</th>
+                <th>Last</th>
+                <th>Odd</th>
+                <th>Even</th>
+            </tr>
+        </thead>
+        <tbody>
+            <th:block th:each="staff, st : ${list}">
+                <tr>
+                    <td th:text="${#strings.capitalizeWords(staff.fullname)}"></td>
+                    <td th:text="${st.index}"></td>
+                    <td th:text="${st.count}"></td>
+                    <td th:text="${st.first}"></td>
+                    <td th:text="${st.last}"></td>
+                    <td th:text="${st.odd}"></td>
+                    <td th:text="${st.even}"></td>
+                </tr>
+            </th:block>
+        </tbody>
+    </table>
+</body>
+</html>

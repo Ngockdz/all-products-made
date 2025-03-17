@@ -1,0 +1,75 @@
+package CRUD;
+
+import org.junit.Test;
+import org.openqa.selenium.*;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.Select;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import java.time.Duration;
+import static org.junit.Assert.*;
+
+public class EditTestUser {
+
+    @Test
+    public void testEditEmployee() {
+        System.setProperty("webdriver.chrome.driver", "C:\\Users\\ASUS\\Downloads\\chromedriver-win64\\chromedriver.exe");
+        WebDriver driver = new ChromeDriver();
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+
+        try {
+            // Truy cập trang quản lý người dùng
+            driver.get("http://localhost:8080/adminusers");
+            System.out.println("✔ Đã truy cập trang quản lý người dùng");
+
+            // Tìm và click nút Sửa - Sử dụng CSS selector tối ưu hơn
+            WebElement editButton = wait.until(ExpectedConditions.elementToBeClickable(
+                By.cssSelector("tr:has(td:contains('tester_selenium')) .btn-warning")));
+            ((JavascriptExecutor) driver).executeScript("arguments[0].click();", editButton);
+            System.out.println("✔ Đã mở form chỉnh sửa");
+
+            // Chờ form load và xác nhận các trường
+            WebElement form = wait.until(ExpectedConditions.visibilityOfElementLocated(
+                By.cssSelector("form[th\\:action^='/save']")));
+
+            // Cập nhật thông tin với CSS selector
+            WebElement usernameField = form.findElement(By.cssSelector("input[th\\:field='*{username}']"));
+            usernameField.clear();
+            usernameField.sendKeys("tester_selenium_updated");
+
+            WebElement emailField = form.findElement(By.cssSelector("input[th\\:field='*{email}']"));
+            emailField.clear();
+            emailField.sendKeys("updated_tester@example.com");
+
+            // Xử lý trường mật khẩu (không bắt buộc khi edit)
+            WebElement passwordField = form.findElement(By.cssSelector("input[th\\:field='*{password}']"));
+            passwordField.sendKeys("NewPassword@123");
+
+            // Cập nhật vai trò với giá trị chính xác
+            WebElement roleSelect = form.findElement(By.cssSelector("select[th\\:field='*{role}']"));
+            new Select(roleSelect).selectByValue("ADMIN");
+
+            // Submit form với click bằng JavaScript
+            WebElement submitButton = form.findElement(By.cssSelector("button.btn-primary[type='submit']"));
+            ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(); arguments[0].click();", submitButton);
+            System.out.println("✔ Đã gửi thông tin cập nhật");
+
+            // Verify - Kiểm tra URL chuyển hướng
+            wait.until(ExpectedConditions.urlToBe("http://localhost:8080/adminusers"));
+            
+            // Kiểm tra thông báo thành công
+            WebElement alert = wait.until(ExpectedConditions.visibilityOfElementLocated(
+                By.cssSelector(".alert-success")));
+            assertTrue("Thiếu thông báo thành công", 
+                      alert.getText().toLowerCase().contains("cập nhật"));
+            
+            System.out.println("✔ Cập nhật người dùng thành công");
+
+        } catch (Exception e) {
+            fail("Lỗi: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            driver.quit();
+        }
+    }
+}

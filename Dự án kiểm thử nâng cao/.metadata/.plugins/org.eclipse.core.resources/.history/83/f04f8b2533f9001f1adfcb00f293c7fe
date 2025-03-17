@@ -1,0 +1,81 @@
+package CRUD;
+
+import org.junit.Test;
+import org.openqa.selenium.*;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.Select;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import java.time.Duration;
+import static org.junit.Assert.*;
+
+public class EditTestUser {
+	
+	final String TARGET_USER_ID = "123"; // Thay bằng ID thực tế
+    final String NEW_USERNAME = "username_updated";
+    final String NEW_EMAIL = "updated_email@example.com";
+    final String NEW_PASSWORD = "NewPassword@123";
+    
+    @Test
+    public void testAddNewEmployee() {
+        System.setProperty("webdriver.chrome.driver", "C:\\Users\\ASUS\\Downloads\\chromedriver-win64\\chromedriver.exe");
+        WebDriver driver = new ChromeDriver();
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+
+        try {
+            // Truy cập trang quản lý nhân viên
+            driver.get("http://localhost:8080/adminusers");
+
+            // Click nút Thêm Nhân Viên (sửa text chính xác)
+            WebElement addButton = wait.until(ExpectedConditions.elementToBeClickable(
+                By.xpath("//a[contains(., 'Sửa')]")));
+            addButton.click();
+            System.out.println("✔ Đã mở form Sửa nhân viên");
+
+            // Chờ form load và điền thông tin
+            WebElement form = wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector(".card")));
+            
+            
+            System.out.println(" sửa thông tin nhân viên");
+            WebElement form1 = wait.until(ExpectedConditions.visibilityOfElementLocated(
+                    By.cssSelector("form[th\\:action^='/save']")));
+
+                updateField(form1, "username", NEW_USERNAME);
+                updateField(form1, "email", NEW_EMAIL);
+                updatePassword(form1, NEW_PASSWORD);
+                selectDropdown(form1, "role", "ROLE");
+
+            // Submit form
+            WebElement submitButton = form1.findElement(By.cssSelector("button[type='submit']"));
+            ((JavascriptExecutor) driver).executeScript("arguments[0].click();", submitButton);
+            System.out.println("✔ Đã submit form");
+
+            // Verify: Kiểm tra thông báo thành công
+            WebElement alert = wait.until(ExpectedConditions.visibilityOfElementLocated(
+                By.cssSelector(".alert-success")));
+            assertTrue(alert.getText().contains("thành công"));
+            System.out.println("✔ sửa nhân viên thành công");
+
+        } catch (Exception e) {
+            fail("Lỗi: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            driver.quit();
+        }
+    }
+
+	private void selectDropdown(WebElement form, String string, String string2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private void updatePassword(WebElement form, String nEW_PASSWORD2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private void updateField(WebElement form, String string, String nEW_EMAIL2) {
+		// TODO Auto-generated method stub
+		
+	}
+}

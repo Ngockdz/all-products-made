@@ -1,0 +1,104 @@
+package CRUD;
+
+import org.junit.Test;
+import org.openqa.selenium.*;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import java.time.Duration;
+import static org.junit.Assert.*;
+
+public class TestaddProductById {
+
+    // Thông tin sản phẩm mẫu
+    final String PRODUCT_NAME = "New Product Test";
+    final String PRODUCT_PRICE = "10000";
+    final String PRODUCT_DESCRIPTION = "This is a test product description";
+    final String IMAGE_PATH = "D:\\java5\\AsmGD1\\AsmGD1\\asm\\src\\main\\resources\\static\\img\\NikeAirForce1.jpg";
+
+    @Test
+    public void testAddProduct() {
+        System.setProperty("webdriver.chrome.driver", "C:\\Users\\ASUS\\Downloads\\chromedriver-win64\\chromedriver.exe");
+        WebDriver driver = new ChromeDriver();
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+
+        try {
+            // Mở trang đăng nhập
+            driver.get("http://localhost:8080/login");
+            System.out.println("Đã mở trang đăng nhập");
+
+            // Nhập thông tin đăng nhập
+            WebElement emailField = wait.until(ExpectedConditions.visibilityOfElementLocated(By.name("email")));
+            emailField.sendKeys("admin.nguyen@example.com");
+            System.out.println("Đã nhập email");
+
+            WebElement passField = driver.findElement(By.name("password"));
+            passField.sendKeys("adminpass");
+            System.out.println("Đã nhập mật khẩu");
+
+            // Click nút đăng nhập
+            WebElement loginButton = driver.findElement(By.cssSelector("button[type='submit']"));
+            loginButton.click();
+            System.out.println("Đã click nút đăng nhập");
+
+            // Chờ chuyển hướng sau khi đăng nhập
+            wait.until(ExpectedConditions.urlContains("/")); // Thay "/admin" bằng URL mong đợi
+            System.out.println("Đăng nhập thành công, đã chuyển hướng đến trang admin");
+            
+            
+
+            // Chuyển đến trang thêm sản phẩm
+            driver.navigate().to("http://localhost:8080/admin/add-product");
+            System.out.println("Đã vào trang thêm sản phẩm");
+            
+
+         // Block 3: DlibR nibidn tln adn nibin
+            WebElement nameField = wait.until(ExpectedConditions.presenceOfElementLocated(By.name("nameproduct")));
+            scrollToElement(driver, nameField);
+            nameField.sendKeys(PRODUCT_NAME);
+
+            WebElement priceField = driver.findElement(By.name("price"));
+            scrollToElement(driver, priceField);
+            priceField.sendKeys(PRODUCT_PRICE);
+
+            WebElement descriptionField = driver.findElement(By.name("description"));
+            scrollToElement(driver, descriptionField);
+            descriptionField.sendKeys(PRODUCT_DESCRIPTION);
+
+            WebElement fileInput = driver.findElement(By.name("photofile"));
+            fileInput.sendKeys(IMAGE_PATH);
+
+            // Submit form
+            WebElement submitButton = driver.findElement(By.cssSelector("button.btn-primary"));
+            scrollToElement(driver, submitButton);
+            submitButton.click();
+
+            // Kiểm tra chuyển hướng
+            wait.until(ExpectedConditions.urlContains("/adminproducts"));
+            System.out.println("Đã chuyển hướng đến trang danh sách sản phẩm");
+
+            // Kiểm tra trong danh sách sản phẩm
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector(".admin-card")));
+            boolean isProductPresent = checkProductExistence(driver, PRODUCT_NAME);
+            assertTrue("Không tìm thấy sản phẩm đã thêm", isProductPresent);
+
+            System.out.println("✅ Thêm sản phẩm thành công - Tên: " + PRODUCT_NAME);
+
+        } catch (Exception e) {
+            System.err.println("❌ Lỗi: " + e.getMessage());
+            e.printStackTrace();
+            fail("Test thất bại");
+        } finally {
+            driver.quit();
+        }
+    }
+
+	private boolean checkProductExistence(WebDriver driver, String pRODUCT_NAME2) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	private void scrollToElement(WebDriver driver, WebElement submitButton) {
+		// TODO Auto-generated method stub
+		
+	}}

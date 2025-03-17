@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Máy Tính Hình Chữ Nhật</title>
+    <style>
+        form {
+            border: 3px solid #f1f1f1;
+            padding: 16px;
+            max-width: 400px;
+            margin: auto;
+            border-radius: 10px;
+        }
+
+        input[type=number], button {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #04AA6D;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            opacity: 0.8;
+        }
+
+        .result-container {
+            text-align: center;
+            padding: 20px;
+            margin: auto;
+            max-width: 400px;
+            border: 2px solid #04AA6D;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .result-container h3 {
+            color: #04AA6D;
+        }
+    </style>
+</head>
+<body>
+    <form action="/rectangle" method="post">
+        <label for="length"><b>Chiều Dài</b></label>
+        <input type="number" id="length" name="length" placeholder="Nhập chiều dài" required>
+
+        <label for="width"><b>Chiều Rộng</b></label>
+        <input type="number" id="width" name="width" placeholder="Nhập chiều rộng" required>
+
+        <button type="submit">Tính Toán</button>
+    </form>
+
+    <!-- Kết Quả -->
+    <div class="result-container" th:if="${calculated}">
+        <h3>Kết Quả Tính Toán</h3>
+        <p><b>Chiều Dài:</b> <span th:text="${length}"></span></p>
+        <p><b>Chiều Rộng:</b> <span th:text="${width}"></span></p>
+        <p><b>Diện Tích:</b> <span th:text="${area}"></span></p>
+        <p><b>Chu Vi:</b> <span th:text="${perimeter}"></span></p>
+    </div>
+</body>
+</html>

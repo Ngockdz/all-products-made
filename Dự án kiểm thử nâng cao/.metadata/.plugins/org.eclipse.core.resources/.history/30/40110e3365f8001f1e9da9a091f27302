@@ -1,0 +1,78 @@
+package Login;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import java.time.Duration;
+
+public class LogoutTest {
+    public static void main(String[] args) {
+        System.setProperty("webdriver.chrome.driver", "C:\\Users\\ASUS\\Downloads\\chromedriver-win64\\chromedriver.exe");
+        WebDriver driver = new ChromeDriver();
+
+        try {
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+            
+            // Đăng nhập trước khi test logout
+            driver.get("http://localhost:8080/login");
+            
+            WebElement emailField = wait.until(ExpectedConditions.visibilityOfElementLocated(By.name("email")));
+            emailField.sendKeys("tranthib@example.com");
+            
+            WebElement passField = driver.findElement(By.name("password"));
+            passField.sendKeys("password123");
+            
+            driver.findElement(By.cssSelector("button[type='submit']")).click();
+            
+            // Chờ đăng nhập thành công
+            wait.until(ExpectedConditions.urlContains("/"));
+            System.out.println("✅ Đăng nhập thành công");
+
+         // --- BẮT ĐẦU TEST LOGOUT ---
+         // Giả sử nút logout nằm trong navigation bar với class 'navindex'
+         WebElement logoutLink = wait.until(ExpectedConditions.elementToBeClickable(
+             By.xpath("//div[@class='navindex']//a[contains(text(),'Đăng xuất')]"))); // Thay thế bằng text thực tế
+         logoutLink.click();
+         System.out.println("Đã click logout");
+
+         // Verify kết quả - Kiểm tra chuyển hướng về trang chủ hoặc login
+         wait.until(ExpectedConditions.or(
+             ExpectedConditions.urlToBe("http://localhost:8080/login"),
+             ExpectedConditions.urlContains("/logout-success")
+         ));
+
+         // Kiểm tra URL sau logout
+         if (driver.getCurrentUrl().contains("/login")) {
+             System.out.println("✅ Đăng xuất thành công - Chuyển hướng đúng trang");
+             
+             // Thử truy cập lại trang giỏ hàng
+             driver.get("http://localhost:8080/cart");
+             
+             // Kiểm tra có bị redirect về login không
+             if (driver.getCurrentUrl().contains("/login")) {
+                 System.out.println("✅ Xác nhận phiên làm việc đã kết thúc");
+             } else {
+                 System.out.println("❌ Vẫn có thể truy cập trang khi đã logout");
+             }
+         } else {
+             System.out.println("❌ Chưa chuyển hướng đúng sau logout");
+         }
+
+         // Kiểm tra thêm bằng cookie
+         try {
+             driver.manage().getCookieNamed("JSESSIONID"); // Hoặc cookie session của bạn
+             System.out.println("❌ Session vẫn tồn tại");
+         } catch (Exception e) {
+             System.out.println("✅ Session đã được xóa");
+         }
+
+        } catch (Exception e) {
+            System.out.println("⚠️ Lỗi hệ thống: " + e.getMessage());
+        } finally {
+            driver.quit();
+        }
+    }
+}

@@ -1,0 +1,99 @@
+package CRUD;
+
+import org.apache.commons.io.FileUtils;
+import org.junit.Test;
+import org.openqa.selenium.*;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.Select;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+import java.io.File;
+import java.io.IOException;
+import java.time.Duration;
+import static org.junit.Assert.*;
+
+public class EditTestUser {
+
+    @Test
+    public void testEditEmployee() {
+        System.setProperty("webdriver.chrome.driver", "C:\\Users\\ASUS\\Downloads\\chromedriver-win64\\chromedriver.exe");
+        WebDriver driver = new ChromeDriver();
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+
+        try {
+            // 1. Truy cập trang quản lý người dùng
+            driver.get("http://localhost:8080/adminusers");
+            System.out.println("✔ Đã truy cập trang quản lý người dùng");
+
+            // 2. Tìm và click nút Sửa với XPath đã sửa
+            WebElement editButton = wait.until(ExpectedConditions.elementToBeClickable(
+                By.xpath("//tr[td[contains(text(), 'tester_selenium')]]//a[contains(@class, 'btn-warning') and contains(., 'Sửa')]")));
+            
+            // 3. Scroll và click an toàn
+            ((JavascriptExecutor) driver).executeScript(
+                "arguments[0].scrollIntoView({behavior: 'smooth', block: 'center', inline: 'center'});",
+                editButton
+            );
+            Thread.sleep(300);
+            ((JavascriptExecutor) driver).executeScript("arguments[0].click();", editButton);
+            System.out.println("✔ Đã mở form chỉnh sửa");
+
+            // 4. Chờ form load
+            WebElement form = wait.until(ExpectedConditions.visibilityOfElementLocated(
+                By.cssSelector("form[th\\:action^='/save']")));
+
+            // 5. Cập nhật thông tin
+            // 5.1 Cập nhật username
+            WebElement usernameField = form.findElement(By.cssSelector("input[th\\:field*='username']"));
+            usernameField.clear();
+            usernameField.sendKeys("tester_selenium_updated");
+
+            // 5.2 Cập nhật email
+            WebElement emailField = form.findElement(By.cssSelector("input[th\\:field*='email']"));
+            emailField.clear();
+            emailField.sendKeys("updated_tester@example.com");
+
+            // 5.3 Cập nhật mật khẩu (không bắt buộc)
+            WebElement passwordField = form.findElement(By.cssSelector("input[th\\:field*='password']"));
+            passwordField.sendKeys("NewSecurePassword123!");
+
+            // 5.4 Cập nhật vai trò
+            WebElement roleSelect = form.findElement(By.cssSelector("select[th\\:field*='role']"));
+            new Select(roleSelect).selectByValue("ADMIN");
+
+            // 6. Submit form
+            WebElement submitButton = form.findElement(By.xpath("//button[contains(text(), 'Lưu thay đổi')]"));
+            ((JavascriptExecutor) driver).executeScript("arguments[0].click();", submitButton);
+            System.out.println("✔ Đã gửi thông tin cập nhật");
+
+            // 7. Verify kết quả
+            // 7.1 Kiểm tra thông báo thành công
+            WebElement successAlert = wait.until(ExpectedConditions.visibilityOfElementLocated(
+                By.cssSelector(".alert-success")));
+            assertTrue("Thiếu thông báo thành công", 
+                      successAlert.getText().toLowerCase().contains("cập nhật"));
+            
+            // 7.2 Kiểm tra dữ liệu trong bảng
+            WebElement updatedRow = wait.until(ExpectedConditions.visibilityOfElementLocated(
+                By.xpath("//tr[td[contains(text(), 'tester_selenium_updated')] " +
+                        "and td[contains(text(), 'updated_tester@example.com')] " +
+                        "and td[contains(text(), 'ADMIN')]]")));
+            
+            System.out.println("✔ Dữ liệu đã được cập nhật thành công");
+
+        } catch (Exception e) {
+            // Chụp ảnh màn hình khi fail
+            File screenshotFile = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
+            try {
+                FileUtils.copyFile(screenshotFile, new File("error_screenshot.png"));
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+            fail("Lỗi: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            driver.quit();
+        }
+    }
+}

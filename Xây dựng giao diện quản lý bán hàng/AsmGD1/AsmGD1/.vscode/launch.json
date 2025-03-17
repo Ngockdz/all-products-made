@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-AssApplication<asm>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "assgiment.ass.AssApplication",
+            "projectName": "asm",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}

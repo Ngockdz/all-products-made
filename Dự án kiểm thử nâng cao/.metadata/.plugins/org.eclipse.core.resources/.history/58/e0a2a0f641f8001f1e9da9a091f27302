@@ -1,0 +1,66 @@
+package CRUD;
+
+import org.junit.Test;
+import org.openqa.selenium.*;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import java.time.Duration;
+import static org.junit.Assert.*;
+
+public class DeleteEmployeeTest {
+
+	@Test
+	public void testDeleteEmployee() {
+	    System.setProperty("webdriver.chrome.driver", "C:\\Users\\ASUS\\Downloads\\chromedriver-win64\\chromedriver.exe");
+	    WebDriver driver = new ChromeDriver();
+	    WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+
+	    try {
+	        // Truy cập trang quản lý nhân viên
+	        driver.get("http://localhost:8080/adminusers");
+
+	        // Tìm nhân viên cần xóa bằng email
+	        String targetEmail = "tester@example.com";
+
+	        // Tìm hàng chứa nhân viên theo email
+	        WebElement employeeRow = wait.until(ExpectedConditions.presenceOfElementLocated(
+	            By.xpath("//td[contains(text(), '" + targetEmail + "')]/ancestor::tr")
+	        ));
+
+	        // Click nút xóa
+	        WebElement deleteButton = employeeRow.findElement(
+	            By.xpath(".//a[contains(@class, 'btn-danger') and contains(text(), 'Xóa')]")
+	        );
+	        ((JavascriptExecutor) driver).executeScript("arguments[0].click();", deleteButton);
+	        System.out.println("✔ Đã click nút xóa");
+
+	        // 🔹 **Chờ alert xuất hiện và chấp nhận nó**
+	        wait.until(ExpectedConditions.alertIsPresent());
+	        Alert confirmAlert = driver.switchTo().alert();
+	        System.out.println("✔ Hiển thị alert: " + confirmAlert.getText());
+	        confirmAlert.accept(); // Nhấn OK để xác nhận xóa
+	        System.out.println("✔ Đã xác nhận xóa");
+
+	        // Kiểm tra thông báo thành công
+	        WebElement successAlert = wait.until(ExpectedConditions.visibilityOfElementLocated(
+	            By.cssSelector(".alert-success")
+	        ));
+	        assertTrue(successAlert.getText().toLowerCase().contains("xóa thành công"));
+	        System.out.println("✔ Hiển thị thông báo thành công");
+
+	        // Kiểm tra nhân viên đã bị xóa khỏi danh sách
+	        wait.until(ExpectedConditions.invisibilityOf(employeeRow));
+	        assertEquals(0, driver.findElements(By.xpath("//td[contains(text(), '" + targetEmail + "')]")).size());
+	        System.out.println("✔ Đã xóa khỏi danh sách");
+
+	    } catch (Exception e) {
+	        fail("Lỗi: " + e.getMessage());
+	        e.printStackTrace();
+	    } finally {
+	        driver.quit();
+	    }
+	}
+
+    }
+}

@@ -1,0 +1,123 @@
+package CRUD;
+
+import org.apache.commons.io.FileUtils;
+import org.junit.Test;
+import org.openqa.selenium.*;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.Select;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import java.io.File;
+import java.io.IOException;
+import java.time.Duration;
+import static org.junit.Assert.*;
+
+public class EditTestUser {
+
+    @Test
+    public void testEditEmployee() {
+        System.setProperty("webdriver.chrome.driver", "C:\\Users\\ASUS\\Downloads\\chromedriver-win64\\chromedriver.exe");
+        WebDriver driver = null;
+        
+        try {
+            // 1. Khởi tạo driver
+            driver = new ChromeDriver();
+            driver.manage().window().maximize();
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+
+            // 2. Truy cập trang quản lý người dùng
+            driver.get("http://localhost:8080/adminusers");
+            System.out.println("✔ Đã truy cập trang quản lý người dùng");
+
+            // 3. Tìm và click nút Sửa
+            WebElement editButton = wait.until(ExpectedConditions.elementToBeClickable(
+                By.xpath("//tr[td[contains(text(), 'tester_selenium')]]//a[contains(@class, 'btn-warning') and contains(., 'Sửa')]")));
+            
+            // 4. Scroll và click
+            ((JavascriptExecutor) driver).executeScript(
+                "arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", 
+                editButton
+            );
+            Thread.sleep(500);
+            ((JavascriptExecutor) driver).executeScript("arguments[0].click();", editButton);
+            System.out.println("✔ Đã mở form chỉnh sửa");
+
+            // 5. Chờ form load
+            WebElement form = wait.until(ExpectedConditions.visibilityOfElementLocated(
+                By.cssSelector("form[th\\:action^='/save']")));
+
+            // 6. Cập nhật thông tin
+            updateField(form, "username", "tester_selenium_updated");
+            updateField(form, "email", "updated_tester@example.com");
+            updatePassword(form, "NewSecurePassword123!");
+            selectDropdown(form, "role", "ADMIN");
+
+            // 7. Submit form
+            WebElement submitButton = form.findElement(By.xpath("//button[contains(text(), 'Lưu thay đổi')]"));
+            submitButton.click();
+            System.out.println("✔ Đã gửi thông tin cập nhật");
+
+            // 8. Verify kết quả
+            verifySuccessAlert(wait);
+            verifyUpdatedData(wait);
+
+        } catch (Exception e) {
+            handleException(driver, e);
+        } finally {
+            if (driver != null) {
+                driver.quit();
+                System.out.println("✔ Đã đóng trình duyệt");
+            }
+        }
+    }
+
+    // ========== Các phương thức phụ trợ ==========
+    private void updateField(WebElement form, String field, String value) {
+        WebElement element = form.findElement(By.cssSelector("input[th\\:field*='" + field + "']"));
+        element.clear();
+        element.sendKeys(value);
+        System.out.println("✔ Đã cập nhật " + field);
+    }
+
+    private void updatePassword(WebElement form, String newPassword) {
+        WebElement passwordField = form.findElement(By.cssSelector("input[th\\:field*='password']"));
+        passwordField.sendKeys(newPassword);
+        System.out.println("✔ Đã cập nhật mật khẩu");
+    }
+
+    private void selectDropdown(WebElement form, String field, String value) {
+        WebElement dropdown = form.findElement(By.cssSelector("select[th\\:field*='" + field + "']"));
+        new Select(dropdown).selectByValue(value);
+        System.out.println("✔ Đã chọn " + value + " cho " + field);
+    }
+
+    private void verifySuccessAlert(WebDriverWait wait) {
+        WebElement successAlert = wait.until(ExpectedConditions.visibilityOfElementLocated(
+            By.cssSelector(".alert-success")));
+        assertTrue("Thiếu thông báo thành công", 
+                  successAlert.getText().toLowerCase().contains("cập nhật"));
+        System.out.println("✔ Hiển thị thông báo thành công");
+    }
+
+    private void verifyUpdatedData(WebDriverWait wait) {
+        WebElement updatedRow = wait.until(ExpectedConditions.visibilityOfElementLocated(
+            By.xpath("//tr[td[contains(., 'tester_selenium_updated')] " +
+                    "and td[contains(., 'updated_tester@example.com')] " +
+                    "and td[contains(., 'ADMIN')]]")));
+        assertTrue("Không tìm thấy dữ liệu mới", updatedRow.isDisplayed());
+        System.out.println("✔ Dữ liệu đã được cập nhật");
+    }
+
+    private void handleException(WebDriver driver, Exception e) {
+        try {
+            if (driver != null) {
+                File screenshotFile = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
+                FileUtils.copyFile(screenshotFile, new File("error_" + System.currentTimeMillis() + ".png"));
+            }
+        } catch (Exception ex) {
+            System.err.println("Không thể chụp màn hình: " + ex.getMessage());
+        }
+        fail("❌ Test thất bại: " + e.getMessage());
+        e.printStackTrace();
+    }
+}

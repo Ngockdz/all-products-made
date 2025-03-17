@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Staff List</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .staff-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .staff-item img {
+            border-radius: 5px;
+            width: 50px;
+            height: 50px;
+            margin-right: 15px;
+        }
+        .staff-item b {
+            font-size: 16px;
+        }
+        .staff-item .info {
+            display: flex;
+            flex-direction: column;
+        }
+        .staff-item .info span {
+            margin-top: 5px;
+        }
+        hr {
+            border: 0;
+            border-top: 1px solid #e0e0e0;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Danh Sách Nhân Viên</h2>
+        <div th:each="staff, st : ${list}">
+            <div class="staff-item">
+                <img th:src="@{|/photos/${staff.photo}|}" alt="Staff Photo">
+                <div class="info">
+                    <b th:text="@{|${st.count}. |}"></b>
+                    <b th:text="${#strings.capitalizeWords(staff.fullname)}"></b>
+                    <span>
+                        Lương: $<b th:text="${#numbers.formatDecimal(staff.salary, 0, 'COMMA', 2, 'POINT')}"></b>
+                    </span>
+                </div>
+            </div>
+            <th:block th:if="${!st.last}"><hr></th:block>
+        </div>
+    </div>
+</body>
+</html>

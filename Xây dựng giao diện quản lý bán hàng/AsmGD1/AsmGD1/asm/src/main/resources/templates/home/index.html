@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en" th:replace="~{/Layouts/Layout :: view(~{::main})}">
+    <body>
+    <main class="content">
+        <style>
+            html {
+                scroll-behavior: smooth; /* Kích hoạt smooth scrolling */
+            }
+            .container {
+                margin-top: 20px;
+                
+                
+            }
+            .product-card {
+                box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+                transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+                cursor: pointer;
+                border-radius: 10px;
+                overflow: hidden;
+                background-color: #fff;
+            }
+            .product-card:hover {
+                transform: scale(1.03);
+                box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.15);
+            }
+            .product-card img {
+                max-height: 100px;
+                object-fit: cover;
+                width: 100%;
+                border-bottom: 1px solid #eee;
+            }
+            .card-body {
+                padding: 15px;
+                text-align: center;
+            }
+            .card-title {
+                font-size: 1.25rem;
+                font-weight: bold;
+                margin-bottom: 10px;
+                color: #333;
+            }
+            .card-text {
+                font-size: 1rem;
+                color: #666;
+                margin-bottom: 15px;
+            }
+            .btn-primary {
+                background-color: #000;
+                border: none;
+                padding: 10px 20px;
+                font-size: 1rem;
+                border-radius: 5px;
+                transition: background-color 0.2s ease-in-out;
+            }
+            .btn-primary:hover {
+                background-color: #333;
+            }
+            h1 {
+                font-size: xx-large;
+                font-weight: bold;
+                font-family: 'Times New Roman', Times, serif;
+                color: #333;
+                margin-bottom: 20px;
+            }
+            .quantity-input {
+                width: 80px;
+                text-align: center;
+                border: 1px solid #ddd;
+                border-radius: 5px;
+                padding: 5px;
+            }
+            .add-to-cart-btn {
+                width: 100%;
+                padding: 10px;
+                font-size: 1rem;
+                border-radius: 5px;
+                transition: background-color 0.2s ease-in-out;
+            }
+            .add-to-cart-btn:hover {
+                background-color: #333;
+            }
+            .modal-content {
+                border-radius: 10px;
+            }
+            .modal-header {
+                border-bottom: 1px solid #eee;
+            }
+            .modal-title {
+                font-size: 1.5rem;
+                font-weight: bold;
+                color: #333;
+            }
+            .modal-body {
+                padding: 20px;
+            }
+            .modal-body img {
+                border-radius: 10px;
+            }
+            .modal-body p {
+                margin-bottom: 15px;
+            }
+            .modal-body .text-danger {
+                font-size: 1.25rem;
+                font-weight: bold;
+            }
+            .modal-body .text-muted {
+                font-size: 1rem;
+                color: #666;
+            }
+
+            /* Phần chứa toàn bộ nội dung */
+            .ialendau {
+                display: flex; /* Sử dụng Flexbox để chia layout */
+                gap: 20px; /* Khoảng cách giữa navindex và phần sản phẩm */
+                padding: 20px; /* Thêm padding để không bị dính vào mép */
+                width: 100%;
+                
+            }
+
+            /* Phần navindex nằm dọc bên trái */
+            .navindex {
+                height: 30%;
+                width: 200px;
+                background-color: #f8f9fa !important; /* Màu nền */
+                padding: 20px; /* Padding bên trong */
+                border-radius: 10px; /* Bo tròn góc */
+                box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1); /* Đổ bóng nhẹ */
+                display: flex;
+                position: sticky;
+                flex-direction: column; /* Sắp xếp các phần tử theo chiều dọc */
+                gap: 10px; /* Khoảng cách giữa các liên kết */
+                top: 150px; /* Bắt đầu dính khi cách top 520px */
+                left: 70px; /* Cách trái 20px */
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Đổ bóng nhẹ */
+                
+            }
+
+            .navindex a {
+                color: #000; /* Màu chữ */
+                text-decoration: none; /* Bỏ gạch chân */
+                font-size: 1.1rem; /* Kích thước chữ */
+                font-weight: bold; /* Chữ đậm */
+                padding: 10px; /* Padding cho các liên kết */
+                border-radius: 5px; /* Bo tròn góc */
+                transition: background-color 0.3s ease, color 0.3s ease; /* Hiệu ứng chuyển màu */
+                
+            }
+
+            .navindex a:hover {
+                color: #007bff; /* Màu chữ khi hover */
+                background-color: rgba(0, 123, 255, 0.1); /* Màu nền khi hover */
+            }
+
+            /* Phần sản phẩm nằm bên phải */
+            .sanpham {
+                flex: 1; /* Chiếm phần còn lại của không gian */
+            }
+
+            /* Phần tiêu đề sản phẩm */
+            h2 {
+                font-size: 1.75rem; /* Kích thước tiêu đề */
+                font-weight: bold; /* Chữ đậm */
+                color: #333; /* Màu chữ */
+                margin-bottom: 20px; /* Khoảng cách dưới */
+            }
+            .slide{
+                z-index: 1;
+            }
+            
+            a {
+                color: #f8f9fa;
+            }
+
+            .thongtin a {
+                font-weight: bold;
+                text-decoration: none;
+                color: #f8f9fa;
+            }
+            .thongtin {
+                display: flex;
+                justify-content: space-between; /* Căn đều các hình ảnh trên hàng ngang */
+                align-items: center;
+                background-color: #000;
+                color: #f8f9fa;
+                padding: 10px 20px;
+                border-radius: 10px;
+                margin-top: 20px;
+                flex-wrap: wrap; /* Đảm bảo các hình ảnh xuống dòng nếu không đủ không gian */
+            }
+
+            .image-container {
+                width: 30%; /* Đặt chiều rộng của mỗi container */
+                text-align: center; /* Căn giữa chữ và hình ảnh */
+                margin-bottom: 20px; /* Khoảng cách giữa các container */
+            }
+
+            .image-caption {
+                font-size: 1.2rem; /* Kích thước chữ */
+                font-weight: bold; /* Chữ đậm */
+                color: #fff; /* Màu chữ */
+                margin-bottom: 10px; /* Khoảng cách giữa chữ và hình ảnh */
+                white-space: nowrap; /* Ngăn văn bản xuống dòng */
+                overflow: hidden; /* Ẩn phần văn bản vượt quá kích thước */
+                text-overflow: ellipsis; /* Hiển thị dấu ba chấm khi văn bản bị cắt */
+                max-width: 100%; /* Giới hạn chiều rộng tối đa */
+            }
+
+
+            .thongtin img {
+                width: 100%; /* Hình ảnh chiếm toàn bộ chiều rộng của container */
+                border-radius: 10px; /* Bo tròn góc của hình ảnh */
+                transition: transform 0.3s ease, box-shadow 0.3s ease; /* Hiệu ứng chuyển đổi khi hover */
+            }
+
+            .thongtin img:hover {
+                transform: scale(1.05); /* Phóng to hình ảnh khi hover */
+                box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); /* Đổ bóng nhẹ khi hover */
+            }
+
+        </style>
+        <div class="container mt-5">
+            <!-- Carousel -->
+            <div class="slide">
+                <div id="carouselExampleSlidesOnly" class="carousel slide" data-bs-ride="carousel" data-bs-interval="1000">
+                    <div class="carousel-inner">
+                        <div class="carousel-item active" data-bs-interval="1000">
+                            <img src="https://top10tphcm.com/wp-content/uploads/2018/03/nike-store.jpg" class="d-block w-100" height="500px">
+                        </div>
+                        <div class="carousel-item" data-bs-interval="1000">
+                            <img src="https://cdn.shopify.com/s/files/1/0456/5070/6581/files/Nike_PEGASUS_41_1960x740_05d0c876-e186-4437-9584-621322960b24.jpg?v=1727844554&width=2000" class="d-block w-100" height="500px">
+                        </div>
+                        <div class="carousel-item" data-bs-interval="1000">
+                            <img src="https://giaynation.com/wp-content/uploads/2022/06/Gia%CC%80y-Nike-Air-Force-1-Tra%CC%86%CC%81ng-Full-7.jpg" class="d-block w-100" height="500px">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <h1 class="text-center mb-4">Trang chủ</h1>
+            <br>
+
+            <!-- Phần chứa navindex và sản phẩm -->
+            <div class="ialendau">
+                <!-- Phần navindex nằm bên trái -->
+                <div class="navindex">
+                    <a href="#yeuthich">Sản Phẩm Yêu Thích</a>
+                    <a href="#hot">Sản Phẩm Bán Chạy</a>
+                    <a href="#newProduct">Sản Phẩm Mới</a>
+                    <a href="#khac">Sản Phẩm Khác</a>
+                </div>
+
+                <!-- Phần sản phẩm nằm bên phải -->
+                <div class="sanpham">
+                    <!-- Phần sản phẩm yêu thích -->
+                    <div id="yeuthich">
+                        <h2>Sản Phẩm Yêu Thích</h2>
+                        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-5 g-4">
+                            <th:block th:each="product : ${yeuthich}">
+                                <div class="col">
+                                    <div class="card product-card h-100"
+                                         th:attr="data-product-id=${product.id}, data-product-name=${product.nameproduct}, data-product-photo=${product.photo}, data-product-description=${product.description}, data-product-price=${product.price}">
+                                        <img th:src="${product.photo}" class="card-img-top" alt="Product Image" />
+                                        <div class="card-body">
+                                            <h5 th:text="${product.nameproduct}" class="card-title">Tên sản phẩm</h5>
+                                            <p th:text="'Giá: $' + ${product.price}" class="card-text">Giá sản phẩm</p>
+                                            <button class="btn btn-primary"><a href="/products"class="text-decoration-none">Xem chi tiết</a></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </th:block>
+                        </div>
+                    </div>
+                    <br>
+                    <div id="hot">
+                        <h2>Sản Phẩm Bán Chạy</h2>
+                        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-5 g-4">
+                            <th:block th:each="product : ${hot}">
+                                <div class="col">
+                                    <div class="card product-card h-100"
+                                         th:attr="data-product-id=${product.id}, data-product-name=${product.nameproduct}, data-product-photo=${product.photo}, data-product-description=${product.description}, data-product-price=${product.price}">
+                                        <img th:src="${product.photo}" class="card-img-top" alt="Product Image" />
+                                        <div class="card-body">
+                                            <h5 th:text="${product.nameproduct}" class="card-title">Tên sản phẩm</h5>
+                                            <p th:text="'Giá: $' + ${product.price}" class="card-text">Giá sản phẩm</p>
+                                            <button class="btn btn-primary"><a href="/products"class="text-decoration-none">Xem chi tiết</a></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </th:block>
+                        </div>
+                    </div>
+                    <br>
+                    <div id="newProduct">
+                        <h2>Sản Phẩm Mới</h2>
+                        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-5 g-4">
+                            <th:block th:each="product : ${newProduct}">
+                                <div class="col">
+                                    <div class="card product-card h-100"
+                                         th:attr="data-product-id=${product.id}, data-product-name=${product.nameproduct}, data-product-photo=${product.photo}, data-product-description=${product.description}, data-product-price=${product.price}">
+                                        <img th:src="${product.photo}" class="card-img-top" alt="Product Image" />
+                                        <div class="card-body">
+                                            <h5 th:text="${product.nameproduct}" class="card-title">Tên sản phẩm</h5>
+                                            <p th:text="'Giá: $' + ${product.price}" class="card-text">Giá sản phẩm</p>
+                                            <button class="btn btn-primary"><a href="/products"class="text-decoration-none">Xem chi tiết</a></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </th:block>
+                        </div>
+                    </div>
+                    <br>
+                    <div id="khac">
+                        <h2>Sản Phẩm Khác</h2>
+                        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-5 g-4">
+                            <th:block th:each="product : ${khac}">
+                                <div class="col">
+                                    <div class="card product-card h-100"
+                                         th:attr="data-product-id=${product.id}, data-product-name=${product.nameproduct}, data-product-photo=${product.photo}, data-product-description=${product.description}, data-product-price=${product.price}">
+                                        <img th:src="${product.photo}" class="card-img-top" alt="Product Image" />
+                                        <div class="card-body">
+                                            <h5 th:text="${product.nameproduct}" class="card-title">Tên sản phẩm</h5>
+                                            <p th:text="'Giá: $' + ${product.price}" class="card-text">Giá sản phẩm</p>
+                                            <button class="btn btn-primary" ><a href="/products" class="text-decoration-none">Xem chi tiết</a></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </th:block>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="thongtin">
+                <a href="https://authentic-shoes.com/blogs/news">Thông tin của trang web NIKE</a>
+                <a href="https://www.facebook.com/nike">Facebook</a>
+                <a href="https://www.instagram.com/nike/">Instagram</a>
+                <a href="https://twitter.com/nike">Twitter</a>
+                <a href="https://www.youtube.com/user/nike">Youtube</a>
+                <a href="https://www.linkedin.com/company/nike">Linkedin</a>
+                <a href="https://www.pinterest.com/nike/">Pinterest</a>
+                <a href="https://www.snapchat.com/add/nike">Snapchat</a>
+            </div>
+            <div class="thongtin">
+                <div class="image-container">
+                    <div class="image-caption">Maverix Havik-16 Power: Sức mạnh bùng nổ trong tầm tay</div>
+                    <a href="https://authentic-shoes.com/blogs/news/maverix-havik-16-power-suc-manh-bung-no-trong-tam-tay" target="_blank"> <!-- Thay link1 bằng đường dẫn thực tế -->
+                        <img src="https://authentic-shoes.com/wp-content/uploads/2025/03/maverix-havik-16-power-carbon-face-view-1024x576-1.jpg" alt="">
+                    </a>
+                </div>
+                <div class="image-container">
+                    <div class="image-caption">Đánh giá Selkirk Luxx Control Air</div>
+                    <a href="https://authentic-shoes.com/blogs/news/danh-gia-selkirk-luxx-control-air" target="_blank"> <!-- Thay link2 bằng đường dẫn thực tế -->
+                        <img src="https://authentic-shoes.com/wp-content/uploads/2025/03/Danh-gia-Selkirk-Luxx-Control-Air.jpeg" alt="">
+                    </a>
+                </div>
+                <div class="image-container">
+                    <div class="image-caption">JOOLA Hyperion 3S – Đứng đầu về sức mạnh?</div>
+                    <a href="https://authentic-shoes.com/blogs/joola-hyperion-3s-dung-dau-ve-suc-manh" target="_blank"> <!-- Thay link3 bằng đường dẫn thực tế -->
+                        <img src="https://authentic-shoes.com/wp-content/uploads/2025/03/Tong-quan-ve-JOOLA-Hyperion-3S.jpg" alt="">
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Chi tiết sản phẩm -->
+        <div class="modal fade" id="" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 id="modalProductName" class="modal-title"></h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <!-- Hình ảnh sản phẩm -->
+                            <div class="col-md-6">
+                                <img id="modalProductImage" class="img-fluid rounded" alt="Product Image">
+                            </div>
+                            <!-- Chi tiết sản phẩm -->
+                            <div class="col-md-6">
+                                <p id="modalProductDescription" class="text-muted"></p>
+                                <p id="modalProductPrice" class="text-danger fw-bold"></p>
+                                <!-- Số lượng và nút thêm vào giỏ hàng -->
+                                <div class="d-flex align-items-center gap-2 mb-3">
+                                    <label for="quantity" class="form-label">Số lượng:</label>
+                                    <input type="number" id="quantity" class="form-control quantity-input" value="1" min="1">
+                                </div>
+                                <!-- Giá tổng -->
+                                <p id="totalPrice" class="text-danger fw-bold"></p>
+                                <!-- Nút thêm vào giỏ hàng -->
+                                <button id="addToCartBtn" class="btn btn-primary add-to-cart-btn">Thêm vào giỏ hàng</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bootstrap 5 JS và dependencies -->
+        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+        <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script> -->
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                // Smooth scrolling cho các liên kết trong .navindex
+                document.querySelectorAll('.navindex a').forEach(anchor => {
+                    anchor.addEventListener('click', function (e) {
+                        e.preventDefault(); // Ngăn chặn hành vi mặc định
+                        const targetId = this.getAttribute('href'); // Lấy ID của phần tử đích
+                        const targetElement = document.querySelector(targetId); // Tìm phần tử đích
+
+                        if (targetElement) {
+                            // Cuộn đến phần tử đích với hiệu ứng mượt
+                            targetElement.scrollIntoView({
+                                behavior: 'smooth', // Hiệu ứng mượt
+                                block: 'start'     // Căn phần tử đích ở đầu viewport
+                            });
+                        }
+                    });
+                });
+
+                // Phần xử lý modal và giỏ hàng
+                const productCards = document.querySelectorAll('.product-card');
+                let currentProductPrice = 0; // Lưu giá gốc của sản phẩm
+                let currentProductId = null; // Lưu ID của sản phẩm hiện tại
+
+                productCards.forEach(card => {
+                    card.addEventListener('click', function () {
+                        const productId = card.getAttribute('data-product-id');
+                        const productName = card.getAttribute('data-product-name');
+                        const productPhoto = card.getAttribute('data-product-photo');
+                        const productDescription = card.getAttribute('data-product-description');
+                        const productPrice = card.getAttribute('data-product-price');
+
+                        // Lưu giá gốc và ID của sản phẩm
+                        currentProductPrice = parseFloat(productPrice);
+                        currentProductId = productId;
+
+                        // Điền thông tin vào modal
+                        document.getElementById('modalProductName').textContent = productName;
+                        document.getElementById('modalProductImage').src = productPhoto;
+                        document.getElementById('modalProductDescription').textContent = productDescription;
+                        document.getElementById('modalProductPrice').textContent = `Giá: ${currentProductPrice.toLocaleString()} $`;
+
+                        // Tính toán và hiển thị giá tổng ban đầu
+                        updateTotalPrice(currentProductPrice, 1);
+
+                        // Hiển thị modal
+                        const modal = new bootstrap.Modal(document.getElementById('productModal'));
+                        modal.show();
+                    });
+                });
+
+                // Xử lý sự kiện thay đổi số lượng
+                const quantityInput = document.getElementById('quantity');
+                quantityInput.addEventListener('input', function () {
+                    const quantity = parseInt(quantityInput.value);
+                    if (quantity >= 1) {
+                        updateTotalPrice(currentProductPrice, quantity);
+                    }
+                });
+
+                // Hàm cập nhật giá tổng
+                function updateTotalPrice(price, quantity) {
+                    const totalPrice = price * quantity;
+                    document.getElementById('totalPrice').textContent = `Tổng giá: ${totalPrice.toLocaleString()} $`;
+                }
+
+                // Xử lý sự kiện thêm vào giỏ hàng
+                const addToCartBtn = document.getElementById('addToCartBtn');
+                addToCartBtn.addEventListener('click', function () {
+                    const quantity = parseInt(quantityInput.value);
+                    if (quantity >= 1 && currentProductId) {
+                        const product = {
+                            id: currentProductId,
+                            name: document.getElementById('modalProductName').textContent,
+                            photo: document.getElementById('modalProductImage').src,
+                            price: currentProductPrice,
+                            quantity: quantity,
+                            total: currentProductPrice * quantity
+                        };
+
+                        // Lưu sản phẩm vào giỏ hàng (localStorage)
+                        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+                        const existingProductIndex = cart.findIndex(item => item.id === product.id);
+                        if (existingProductIndex >= 0) {
+                            // Nếu sản phẩm đã tồn tại, cập nhật số lượng
+                            cart[existingProductIndex].quantity += quantity;
+                            cart[existingProductIndex].total = cart[existingProductIndex].price * cart[existingProductIndex].quantity;
+                        } else {
+                            // Nếu sản phẩm chưa tồn tại, thêm mới
+                            cart.push(product);
+                        }
+                        localStorage.setItem('cart', JSON.stringify(cart));
+
+                        // Thông báo thành công
+                        alert('Sản phẩm đã được thêm vào giỏ hàng!');
+                    }
+                });
+            });
+        </script>
+    </main>
+    </body>
+</html>
